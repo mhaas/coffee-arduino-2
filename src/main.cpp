@@ -11,16 +11,11 @@
 #include "TempSensor.h"
 #include "WifiWrapper.h"
 #include "HeaterPID.h"
+#include "secret.h"
 
 #define DEBUG Serial
 
 
-
-/**
- * Some configuration constants
- */
-const char *SSID = "SSID";
-const char *PASSWORD = "pass";
 
 /**
  * Default desired heater temperature in degrees celsius if no
