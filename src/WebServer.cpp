@@ -23,8 +23,8 @@ void WebServer::begin() {
   // See e.g. http://arduino.stackexchange.com/questions/14157/passing-class-member-function-as-argument
   httpd.serveStatic("/", SPIFFS, "/wwwroot/index.html");
   httpd.serveStatic("/smoothie.js", SPIFFS, "/wwwroot/smoothie.js");
-  httpd.on("/set", std::bind(&WebServer::handleSet, this));
-  httpd.on("/get", std::bind(&WebServer::handleGet, this));
+  httpd.on("/set", HTTP_POST, std::bind(&WebServer::handleSet, this));
+  httpd.on("/get", HTTP_GET, std::bind(&WebServer::handleGet, this));
   httpd.onNotFound(std::bind(&WebServer::handleNotFound, this));
   httpd.begin();
 }
@@ -119,8 +119,7 @@ void WebServer::handleTrigger(ESP8266WebServer::THandlerFunction trigger) {
   httpd.send(200, "text/plain", "OK");
 }
 
-// Execute a callback if the given uri is requested
+// Execute a callback if the given uri is requested via POST
 void WebServer::addTrigger(const char* uri, ESP8266WebServer::THandlerFunction trigger) {
-  httpd.on(uri, std::bind(&WebServer::handleTrigger, this, trigger));
+  httpd.on(uri, HTTP_POST, std::bind(&WebServer::handleTrigger, this, trigger));
 }
-

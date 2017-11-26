@@ -20,38 +20,52 @@
     "use strict";
 
     function init() {
+        let pidParamsSubmitButton = document.getElementById('form_pid_params');
+        pidParamsSubmitButton.addEventListener('submit', submitPidParameterForm);
+
+        let desiredTempSubmitButton =  document.getElementById('form_desired_temp');
+        desiredTempSubmitButton.addEventListener('submit', submitDesiredTemperatureForm);
+
+        let autoTuneButton = document.getElementById('button_autotune');
+        autoTuneButton.addEventListener('click', handleAutoTune, false);
+
         var tempSmoothie = new SmoothieChart();
         tempSmoothie.streamTo(document.getElementById("coffee-temp"), 1000);
         var pidSmoothie = new SmoothieChart();
-        pidSmoothie.streamTo(document.getElementById("coffee-pid"), 1000);    
+        pidSmoothie.streamTo(document.getElementById("coffee-pid"), 1000);
         var desiredLine = new TimeSeries();
         var curLine = new TimeSeries();
         var pLine = new TimeSeries();
         var iLine = new TimeSeries();
         var dLine = new TimeSeries();
-         
+
 
         function fetchData() {
-            var request = new XMLHttpRequest();
-            request.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    var data = JSON.parse(this.responseText);
-                    var time = new Date().getTime();
-                    desiredLine.append(time, data.desired_temperature);
-                    curLine.append(time, data.current_temperature);
-                    pLine.append(time, data.kp);
-                    iLine.append(time, data.ki);
-                    dLine.append(time, data.kd);
-                }
+            fetch('/get').then(function(response) {
+              if (response.status == 200) {
+                var data = JSON.parse(response.responseText);
+                var time = new Date().getTime();
+                desiredLine.append(time, data.desired_temperature);
+                document.getElementById('input_desired_temp').value = data.desired_temperature;
+                curLine.append(time, data.current_temperature);
+                pLine.append(time, data.kp);
+                document.getElementById('input_kp').value = data.kp;
+                iLine.append(time, data.ki);
+                document.getElementById('input_ki').value = data.ki;
+                dLine.append(time, data.kd);
+                document.getElementById('input_kd').value = data.kd;
+              } else {
+                console.log(`ERROR fetching data. Server returned: ${response.status}`);
+              }
+            }).catch(function (reason) {
+              console.log(`Error fetching data. Reason: ${reason}`, reason);
             }
-            request.open("GET", "/get", true);
-            request.send(null);
+          );
         }
-        
-        // Add a random value to each line every second
+
         setInterval(function() {
-            fetchData(desiredLine, curLine);
-        }, 1000);
+            fetchData();
+        }, 500);
 
         tempSmoothie.addTimeSeries(desiredLine, { strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.4)', lineWidth:3 });
         tempSmoothie.addTimeSeries(curLine, { strokeStyle:'rgb(255, 0, 255)', fillStyle:'rgba(255, 0, 255, 0.3)', lineWidth:3 });
@@ -59,15 +73,42 @@
         pidSmoothie.addTimeSeries(iLine);
         pidSmoothie.addTimeSeries(dLine);
     }
-    function autotune() {
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status != 200) {
-                    alert("Error in autotune!");
+    function handleAutoTune() {
+        response = fetch('trigger_autotune', {'method': 'post'}).then(
+          function(response) {
+            if (!response.ok) {
+              alert(`Error in autotune. Server returned status: ${respose.status}`);
             }
+        }).catch(function (reason) {
+          alert(`Error in autotune. Reason: ${reason}`);
+        });
+        return false;
+    }
+    function submitDesiredTemperatureForm(event) {
+      // return false does not seem to work, so use
+      // event.preventDefault
+      event.preventDefault();
+      submitForm('form_desired_temp');
+    }
+
+    function submitPidParameterForm(event) {
+      event.preventDefault();
+      submitForm('form_pid_params');
+    }
+    function submitForm(formId) {
+      let form = document.getElementById(formId);
+      let formData = new FormData(form);
+      fetch('/set', {method: 'post', body: formData }).then(
+        function(response) {
+          if (response.status !== 200) {
+            alert(`Error submitting form. Response: ${response.status}`);
+          }
         }
-        request.open("GET", "trigger_autotune", true);
-        request.send(null);
+      ).catch(
+        function (reason) {
+          alert(`Error submitting desired temperature. Reason: ${reason}`);
+        }
+      );
     }
     </script>
   </head>
@@ -77,24 +118,33 @@
 
     <h4>Temperature</h4>
     <canvas id="coffee-temp" width="500" height="200"></canvas>
-    <!-- TODO: add forms for all settings -->
-    <!-- TODO: pre-populate settings form -->
-    <form action="/set" method="POST">
-    <div>
-        <label for="desired_temp">Desired Temperature</label>
-        <input type="text" id="desired_temp" name="desired_temp" size="3"/>
-    </div>
-    <div>
+
+    <form id="form_desired_temp">
+        <label for="input_desired_temp">Desired Temperature</label>
+        <input type="number" id="input_desired_temp" name="desired_temp"
+         required="true" min="0" max="200" step="0.5"/>
+         <div>
         <button type="submit">Set</button>
-    </div>
+      </div>
     </form>
 
     <h4>PID</h4>
     <canvas id="coffee-pid" width="500" height="200"></canvas>
     <br/>
-    <button type="button" onclick="autotune();">AutoTune</button>
-
-
+    <button type="button" id="button_autotune">AutoTune</button>
+    <form id="form_pid_params">
+        <label for="input_kp">Kp</label>
+        <input type="number" id="input_kp" name="kp"
+         required="true"/>
+      <label for="input_ki">Ki</label>
+      <input type="number" id="input_ki" name="ki"
+       required="true"/>
+        <label for="input_kd">Kd</label>
+        <input type="number" id="input_kd" name="kd"
+         required="true"/>
+         <div>
+        <button type="submit">Set</button>
+      </div>
+    </form>
   </body>
 </html>
-
