@@ -21,9 +21,6 @@
  */
 const char *SSID = "SSID";
 const char *PASSWORD = "pass";
-const byte HEATER_RELAY_PIN = 5;
-const byte SPI_CS_PIN = 16;
-const byte HTTPD_PORT = 80;
 
 /**
  * Default desired heater temperature in degrees celsius if no
@@ -62,7 +59,7 @@ void setup() {
   httpd.begin();
   wifi.begin(SSID, PASSWORD);
   pid.begin(HEATER_RELAY_PIN);
-  tempSensor.begin(SPI_CS_PIN);
+  tempSensor.begin(TEMP_SENSOR_CS_PIN);
 }
 
 // the loop function runs over and over again forever
