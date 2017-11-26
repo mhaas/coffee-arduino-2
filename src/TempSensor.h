@@ -10,7 +10,7 @@ class TempSensor {
 public:
   TempSensor(SettingsStorage *_settings);
   //~TempSensor();
-  void begin(const byte _spiCsPin, const double _analogReference);
+  void begin(const byte _spiCsPin);
   void update();
 
 private:

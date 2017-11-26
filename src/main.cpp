@@ -21,11 +21,10 @@
  */
 const char *SSID = "SSID";
 const char *PASSWORD = "pass";
-const byte LED_PIN = 0;
 const byte HEATER_RELAY_PIN = 5;
 const byte SPI_CS_PIN = 16;
 const byte HTTPD_PORT = 80;
-const float ANALOG_REFERENCE = 3.3;
+
 /**
  * Default desired heater temperature in degrees celsius if no
  * value is set in the EEPROM
@@ -54,8 +53,6 @@ void setup() {
   // TODO: are the relays low-active?
   // https://arduino-info.wikispaces.com/ArduinoPower
   // Initialize and reset pins
-  digitalWrite(LED_PIN, LOW);
-  pinMode(LED_PIN, OUTPUT);
 
   settings.begin();
   // Connect URI-based triggers
@@ -65,7 +62,7 @@ void setup() {
   httpd.begin();
   wifi.begin(SSID, PASSWORD);
   pid.begin(HEATER_RELAY_PIN);
-  tempSensor.begin(SPI_CS_PIN, ANALOG_REFERENCE);
+  tempSensor.begin(SPI_CS_PIN);
 }
 
 // the loop function runs over and over again forever

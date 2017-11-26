@@ -2,7 +2,7 @@
 
 TempSensor::TempSensor(SettingsStorage *_settings) { settings = _settings; }
 
-void TempSensor::begin(const byte _spiCsPin, const double _analogReference) {
+void TempSensor::begin(const byte _spiCsPin) {
   sensor = new Adafruit_MAX31865(_spiCsPin);
   // My PT100 has three wires
   sensor->begin(MAX31865_3WIRE);
