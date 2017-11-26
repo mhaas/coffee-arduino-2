@@ -1,28 +1,23 @@
 #include "TempSensor.h"
 
-TempSensor::TempSensor(SettingsStorage* _settings) {
-  settings = _settings;
-}
+TempSensor::TempSensor(SettingsStorage *_settings) { settings = _settings; }
 
 void TempSensor::begin(const byte _spiCsPin, const double _analogReference) {
-
-  //sensor = new HighTempMCP320x(_spiCsPin, 0, 1);
-  /* Some ADCs use 3.3.V, others use 5V as analog reference */
-  //sensor->setAnalogReference(_analogReference);
-  //sensor->begin();
-
+  sensor = new Adafruit_MAX31865(_spiCsPin);
+  // My PT100 has three wires
+  sensor->begin(MAX31865_3WIRE);
 }
 
 void TempSensor::update() {
-
+  // For PT100
+  const int R_AT_ZERO_DEGREES = 100;
+  // 430 Ohms for the Adafruit PT100 breakout
+  const int R_REFERENCE = 430;
   // Sample every TEMP_INTERVALL ms
   int now = millis();
   if (now > lastRead + TEMP_INTERVALL) {
     lastRead = now;
-    // Have to call getRoomTmp first..
-    //sensor->getRoomTmp();
-
-    settings->setCurrentTemperature(-1);
+    float temperature = sensor->temperature(R_AT_ZERO_DEGREES, R_REFERENCE);
+    settings->setCurrentTemperature(temperature);
   }
-
 }
