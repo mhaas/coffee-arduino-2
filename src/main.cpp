@@ -1,11 +1,11 @@
 /**
- * 
+ *
  * A http-enabled PID controller for espresso machines.
  *
  */
 
 
-
+#include <Arduino.h>
 #include "SettingsStorage.h"
 #include "WebServer.h"
 #include "TempSensor.h"
@@ -26,7 +26,7 @@ const byte HEATER_RELAY_PIN = 5;
 const byte SPI_CS_PIN = 16;
 const byte HTTPD_PORT = 80;
 const float ANALOG_REFERENCE = 3.3;
-/**  
+/**
  * Default desired heater temperature in degrees celsius if no
  * value is set in the EEPROM
  */
@@ -75,4 +75,3 @@ void loop() {
   wifi.update();
   pid.update();
 }
-
