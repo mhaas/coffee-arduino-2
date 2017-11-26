@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!-- Based on the SmoothieCharts "Server Load" example -->
+<!-- TODO: this needs several improvements, i.e. better CSS and less ugly JS -->
+<!-- TODO: form submissions navigate away from page, should be AJAX -->
+<html>
+  <head>
+    <style type="text/css">
+      body {
+        background-color: #111111;
+        color: #eeeeee;
+        font-family: tahoma, arial, sans-serif;
+        padding-left: 100px;
+      }
+      h4 {
+        margin-bottom: 1px;
+      }
+    </style>
+    <script type="text/javascript" src="smoothie.js"></script>
+    <script>
+    "use strict";
+
+    function init() {
+        var tempSmoothie = new SmoothieChart();
+        tempSmoothie.streamTo(document.getElementById("coffee-temp"), 1000);
+        var pidSmoothie = new SmoothieChart();
+        pidSmoothie.streamTo(document.getElementById("coffee-pid"), 1000);    
+        var desiredLine = new TimeSeries();
+        var curLine = new TimeSeries();
+        var pLine = new TimeSeries();
+        var iLine = new TimeSeries();
+        var dLine = new TimeSeries();
+         
+
+        function fetchData() {
+            var request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var data = JSON.parse(this.responseText);
+                    var time = new Date().getTime();
+                    desiredLine.append(time, data.desired_temperature);
+                    curLine.append(time, data.current_temperature);
+                    pLine.append(time, data.kp);
+                    iLine.append(time, data.ki);
+                    dLine.append(time, data.kd);
+                }
+            }
+            request.open("GET", "/get", true);
+            request.send(null);
+        }
+        
+        // Add a random value to each line every second
+        setInterval(function() {
+            fetchData(desiredLine, curLine);
+        }, 1000);
+
+        tempSmoothie.addTimeSeries(desiredLine, { strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.4)', lineWidth:3 });
+        tempSmoothie.addTimeSeries(curLine, { strokeStyle:'rgb(255, 0, 255)', fillStyle:'rgba(255, 0, 255, 0.3)', lineWidth:3 });
+        pidSmoothie.addTimeSeries(pLine);
+        pidSmoothie.addTimeSeries(iLine);
+        pidSmoothie.addTimeSeries(dLine);
+    }
+    function autotune() {
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status != 200) {
+                    alert("Error in autotune!");
+            }
+        }
+        request.open("GET", "trigger_autotune", true);
+        request.send(null);
+    }
+    </script>
+  </head>
+  <body onload="init()">
+
+    <h1>Coffee</h1>
+
+    <h4>Temperature</h4>
+    <canvas id="coffee-temp" width="500" height="200"></canvas>
+    <!-- TODO: add forms for all settings -->
+    <!-- TODO: pre-populate settings form -->
+    <form action="/set" method="POST">
+    <div>
+        <label for="desired_temp">Desired Temperature</label>
+        <input type="text" id="desired_temp" name="desired_temp" size="3"/>
+    </div>
+    <div>
+        <button type="submit">Set</button>
+    </div>
+    </form>
+
+    <h4>PID</h4>
+    <canvas id="coffee-pid" width="500" height="200"></canvas>
+    <br/>
+    <button type="button" onclick="autotune();">AutoTune</button>
+
+
+  </body>
+</html>
+
