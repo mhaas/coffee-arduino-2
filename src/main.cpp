@@ -5,6 +5,10 @@
  */
 
 
+// TODO:  add own watchdog code to prevent heater from running too long:
+// https://github.com/esp8266/Arduino/issues/1532
+
+
 #include <Arduino.h>
 #include "SettingsStorage.h"
 #include "WebServer.h"
@@ -13,7 +17,6 @@
 #include "HeaterPID.h"
 #include "secret.h"
 
-#define DEBUG Serial
 
 
 
@@ -39,21 +42,20 @@ HeaterPID pid = HeaterPID(&settings);
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  // Initialize Serial with 9600 baud because my USB<->Serial can't handle more
-  DEBUG.begin(9600);
+  DEBUG.begin(DEBUG_BEGIN_ARG);
 
   // TODO: are the relays low-active?
   // https://arduino-info.wikispaces.com/ArduinoPower
   // Initialize and reset pins
 
   settings.begin();
+  pid.begin(HEATER_RELAY_PIN);
   // Connect URI-based triggers
   // While global settings are handled via the SettingsStorage registry, simple void functions are
   // connected to the web server via callbacks
   httpd.addTrigger("/trigger_autotune", std::bind(&HeaterPID::triggerAutoTune, pid));
   httpd.begin();
   wifi.begin(SSID, PASSWORD);
-  pid.begin(HEATER_RELAY_PIN);
   tempSensor.begin(TEMP_SENSOR_CS_PIN);
 }
 

@@ -14,7 +14,6 @@ class WifiWrapper {
   private:
     int wifiLastCheck = 0;
     wl_status_t wifiLastState = (wl_status_t) 0;
-    const int WIFI_UPDATE_INTERVALL = 500;
 };
 
 #endif

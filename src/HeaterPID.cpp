@@ -1,7 +1,6 @@
 #include "HeaterPID.h"
 
-
-HeaterPID::HeaterPID(SettingsStorage* _settings) {
+HeaterPID::HeaterPID(SettingsStorage *_settings) {
   settings = _settings;
   autoTuneRequested = false;
 }
@@ -9,16 +8,27 @@ HeaterPID::HeaterPID(SettingsStorage* _settings) {
 void HeaterPID::begin(const int _relayPin) {
   relayPin = _relayPin;
 
-  pid = new PID(settings->getCurrentTemperature(), &pidOutput, settings->getDesiredTemperature(), settings->getKp(),
-                      settings->getKi(), settings->getKd(), DIRECT);
+  pid = new PID(settings->getCurrentTemperature(), &pidOutput,
+                settings->getDesiredTemperature(), settings->getKp(),
+                settings->getKi(), settings->getKd(), DIRECT);
   pinMode(relayPin, OUTPUT);
-  digitalWrite(relayPin, RELAY_OFF);
+  disableHeater();
 
   windowStartTime = millis();
 
-  // Initialize PID
 
-  // Set the period of the relay control signal
+
+  /** Set the window size for the time proportioning control.
+*  See the original PID_Relayoutput example.
+*
+*  The period of the signal is HEATER_WINDOW_SIZE ms (e.g. 5s) and
+*  the output of the PID is the duty cycle, e.g. how long the
+*  heater is one during that five second window.
+*  See: https://en.wikipedia.org/wiki/Duty_cycle
+*
+*  This is similar to a slow version of PWM.
+*/
+  // We can switch every 20ms: 1000 * 50Hz
   pid->SetOutputLimits(0, HEATER_WINDOW_SIZE);
 
   // turn the PID on
@@ -35,14 +45,14 @@ void HeaterPID::update() {
       double kp = aTune->GetKp();
       double ki = aTune->GetKi();
       double kd = aTune->GetKd();
-      dbgStream->println("Autotune done.");
-      dbgStream->print("kp: ");
-      dbgStream->println(kp);
-      dbgStream->print("ki: ");
-      dbgStream->println(ki);
-      dbgStream->print("kd: ");
-      dbgStream->println(kd);
-      pid->SetTunings(kp,ki,kd);
+      DEBUG.println("Autotune done.");
+      DEBUG.print("kp: ");
+      DEBUG.println(kp);
+      DEBUG.print("ki: ");
+      DEBUG.println(ki);
+      DEBUG.print("kd: ");
+      DEBUG.println(kd);
+      pid->SetTunings(kp, ki, kd);
       settings->setKp(kp);
       settings->setKi(ki);
       settings->setKd(kd);
@@ -58,29 +68,36 @@ void HeaterPID::update() {
   // How many milliseconds have passed since we have started the current window?
   float currentWindowElapsed = millis() - windowStartTime;
 
-  if (currentWindowElapsed > HEATER_WINDOW_SIZE ) {
-    //time to shift the Relay Window
+  if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
+    // time to shift the Relay Window
     // TODO: just use current timestamp here?
     windowStartTime += HEATER_WINDOW_SIZE;
-    dbgStream->print("Starting new window. PID says: ");
-    dbgStream->println(pidOutput);
-    dbgStream->print("Desired Temp:");
-    dbgStream->println(*(settings->getDesiredTemperature()));
-
+    DEBUG.print("Starting new window. PID says: ");
+    DEBUG.println(pidOutput);
+    DEBUG.print("Desired Temp:");
+    DEBUG.println(*(settings->getDesiredTemperature()));
   }
 
   // Now decide if we are in the duty cycle of our period, i.e. if we want
   // to turn the relay for the header on or off
   if (currentWindowElapsed > pidOutput) {
-    digitalWrite(relayPin, RELAY_OFF);
-  }
-  else {
-    digitalWrite(relayPin, RELAY_ON);
+    disableHeater();
+  } else {
+    enableHeater();
   }
 }
 
+void HeaterPID::enableHeater() {
+  digitalWrite(relayPin, HEATER_RELAY_ON);
+}
+
+void HeaterPID::disableHeater() {
+  digitalWrite(relayPin, HEATER_RELAY_OFF);
+}
+
 void HeaterPID::triggerAutoTune() {
-  aTune = new PID_ATune(settings->getCurrentTemperature(), settings->getDesiredTemperature());
+  aTune = new PID_ATune(settings->getCurrentTemperature(),
+                        settings->getDesiredTemperature());
   // 0: PI, 1: PID
   aTune->SetControlType(0);
   // TODO: there are parameters which look interesting, like
