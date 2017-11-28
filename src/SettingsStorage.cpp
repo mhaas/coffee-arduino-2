@@ -5,9 +5,6 @@
 // The config version is checked to see if a (current) configuration
 // is available.
 
-// the length  of that config version string
-
-
 // Code adapted from here: http://playground.arduino.cc/Code/EEPROMLoadAndSaveSettings
 
 // TODO: handle global variables
@@ -20,6 +17,7 @@ void SettingsStorage::begin() {
   // Read config from EEPROM
   EEPROM.get(CONFIG_DATA_OFFSET, this->storage);
   if (strncmp(this->storage.configVersion, CONFIG_VERSION, CONFIG_VERSION_LENGTH) != 0) {
+    DEBUG.println("SettingsStorage::begin: no settings found in EEPROM. Storing defaults!");
     // no config found  - write default config from header file into EEPROM
     EEPROM.put(CONFIG_DATA_OFFSET, this->storage);
     EEPROM.commit();
@@ -35,7 +33,7 @@ void SettingsStorage::update() {
 void SettingsStorage::store(double value, double* target) {
   *target = value;
   EEPROM.put(CONFIG_DATA_OFFSET, this->storage);
-  EEPROM.commit();  
+  EEPROM.commit();
 }
 
 
@@ -63,7 +61,6 @@ void SettingsStorage::setTempOffset(double tempOffset) {
   store(tempOffset, &this->storage.tempOffset);
 }
 
-
 double* SettingsStorage::getDesiredTemperature() {
   return &this->storage.desiredTemperature;
 }
@@ -87,4 +84,3 @@ double SettingsStorage::getKi() {
 double SettingsStorage::getKd() {
   return this->storage.kd;
 }
-

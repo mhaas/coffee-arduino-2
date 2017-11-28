@@ -1,9 +1,8 @@
 #include "HeaterPID.h"
 
 
-HeaterPID::HeaterPID(SettingsStorage* _settings, Stream* _dbgStream) {
+HeaterPID::HeaterPID(SettingsStorage* _settings) {
   settings = _settings;
-  dbgStream = _dbgStream;
   autoTuneRequested = false;
 }
 
@@ -88,7 +87,3 @@ void HeaterPID::triggerAutoTune() {
   // SetNoiseBand and SetLookbackSec. The defaults look useful.
   autoTuneRequested = true;
 }
-
-
-
-

@@ -33,9 +33,9 @@ WebServer httpd = WebServer(&settings);
 
 TempSensor tempSensor = TempSensor(&settings);
 
-WifiWrapper wifi = WifiWrapper(&DEBUG);
+WifiWrapper wifi = WifiWrapper();
 
-HeaterPID pid = HeaterPID(&settings, &DEBUG);
+HeaterPID pid = HeaterPID(&settings);
 
 // the setup function runs once when you press reset or power the board
 void setup() {
