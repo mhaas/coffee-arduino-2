@@ -2,6 +2,7 @@
 
 
 void WifiWrapper::begin(const char* ssid, const char* psk) {
+  WiFi.hostname("espresso");
   WiFi.begin(ssid, psk);
 }
 

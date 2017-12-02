@@ -10,7 +10,7 @@
 
 
 #include <Arduino.h>
-#include "SettingsStorage.h"
+#include <ArduinoOTA.h>
 #include "WebServer.h"
 #include "TempSensor.h"
 #include "WifiWrapper.h"
@@ -57,10 +57,14 @@ void setup() {
   httpd.begin();
   wifi.begin(SSID, PASSWORD);
   tempSensor.begin(TEMP_SENSOR_CS_PIN);
-}
+
+   ArduinoOTA.begin();
+ }
+
 
 // the loop function runs over and over again forever
 void loop() {
+  ArduinoOTA.handle();
   httpd.update();
   tempSensor.update();
   wifi.update();
