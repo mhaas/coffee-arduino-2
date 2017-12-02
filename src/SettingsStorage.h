@@ -11,7 +11,7 @@ class SettingsStorage {
   public:
     void begin();
     void update();
-    
+
     void setKp(double _kp);
     void setKi(double _ki);
     void setKd(double _kd);
@@ -24,7 +24,7 @@ class SettingsStorage {
     double getKi();
     double getKd();
     double* getCurrentTemperature();
-     
+
 
     struct PidSettings {
       double desiredTemperature;
@@ -42,12 +42,14 @@ class SettingsStorage {
 
     const char CONFIG_VERSION[CONFIG_VERSION_LENGTH] = "124";
     // At which byte of the EEPROM the config data is stored
-    const size_t CONFIG_DATA_OFFSET = 32;
+    // If you change this, make sure to change the size argument
+    // to EEPROM.begin as well.
+    const size_t CONFIG_DATA_OFFSET = 0;
     const double DEFAULT_HEATER_TEMP = 50;
 
     double currentTemperature = 0;
 
-    SettingsStorage::PidSettings storage = { 
+    SettingsStorage::PidSettings storage = {
       .desiredTemperature = DEFAULT_HEATER_TEMP,
       .tempOffset = 0,
       .kp = DEFAULT_HEATER_KP,

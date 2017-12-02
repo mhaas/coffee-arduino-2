@@ -13,12 +13,17 @@
 
 
 void SettingsStorage::begin() {
+
   EEPROM.begin(sizeof(storage));
   // Read config from EEPROM
   EEPROM.get(CONFIG_DATA_OFFSET, this->storage);
+
   if (strncmp(this->storage.configVersion, CONFIG_VERSION, CONFIG_VERSION_LENGTH) != 0) {
+    // If you don't see this message, add a delay() to make sure the serial port
+    // is initialized
     DEBUG.println("SettingsStorage::begin: no settings found in EEPROM. Storing defaults!");
     // no config found  - write default config from header file into EEPROM
+    memcpy(this->storage.configVersion, CONFIG_VERSION, CONFIG_VERSION_LENGTH);
     EEPROM.put(CONFIG_DATA_OFFSET, this->storage);
     EEPROM.commit();
   }
