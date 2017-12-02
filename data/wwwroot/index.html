@@ -47,26 +47,38 @@
 
 
         function fetchData() {
-            fetch('/get').then(function(response) {
-              if (response.status == 200) {
-                var data = JSON.parse(response.responseText);
+          // TODO: catch for the first promise?
+          fetch('/get').
+              then(function(response) {
+                if (response.status == 200) {
+                  return response.json();
+                } else {
+                  console.log(`ERROR fetching data. Server returned: ${response.status}`);
+                }
+              }).
+              then(function(data) {
                 var time = new Date().getTime();
                 desiredLine.append(time, data.desired_temperature);
-                document.getElementById('input_desired_temp').value = data.desired_temperature;
+                setInputValueIfNotSet('input_desired_temp', data.desired_temperature);
                 curLine.append(time, data.current_temperature);
                 pLine.append(time, data.kp);
-                document.getElementById('input_kp').value = data.kp;
+                setInputValueIfNotSet('input_kp', data.kp);
                 iLine.append(time, data.ki);
-                document.getElementById('input_ki').value = data.ki;
+                setInputValueIfNotSet('input_ki', data.ki);
                 dLine.append(time, data.kd);
-                document.getElementById('input_kd').value = data.kd;
-              } else {
-                console.log(`ERROR fetching data. Server returned: ${response.status}`);
-              }
-            }).catch(function (reason) {
-              console.log(`Error fetching data. Reason: ${reason}`, reason);
+                setInputValueIfNotSet('input_kd', data.kd);
+              }).
+              catch(function (reason) {
+                console.log(`Error fetching data. Reason: ${reason}`, reason);
             }
           );
+        }
+
+        function setInputValueIfNotSet(inputId, value) {
+          const inputElement = document.getElementById(inputId);
+          if (inputElement.value === '') {
+            inputElement.value = value;
+          }
         }
 
         setInterval(function() {
@@ -103,8 +115,16 @@
     }
     function submitForm(formId) {
       let form = document.getElementById(formId);
+      // ESP8266 webserver does not handle multipart/form-data well, so we
+      // encode this ourselves to x-www-form-urlencoded
       let formData = new FormData(form);
-      fetch('/set', {method: 'post', body: formData }).then(
+      let requestBodyItems = [];
+      for (let keyValuePair of formData) {
+        requestBodyItems.push(keyValuePair[0] + '=' +
+         encodeURIComponent(keyValuePair[1]));
+      }
+      let requestBody = requestBodyItems.join("&");
+      fetch('/set', {method: 'post', body: requestBody }).then(
         function(response) {
           if (response.status !== 200) {
             alert(`Error submitting form. Response: ${response.status}`);
