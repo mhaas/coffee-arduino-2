@@ -18,6 +18,10 @@ void TempSensor::update() {
   if (now > lastRead + TEMP_INTERVALL) {
     lastRead = now;
     float temperature = sensor->temperature(R_AT_ZERO_DEGREES, R_REFERENCE);
+    if (temperature < -50 || temperature > 200) {
+      // Indicate that this is a bogus reading.
+      temperature = -1;
+    }
     settings->setCurrentTemperature(temperature);
   }
 }

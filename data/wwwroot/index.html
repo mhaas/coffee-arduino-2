@@ -35,7 +35,7 @@
         let autoTuneButton = document.getElementById('button_autotune');
         autoTuneButton.addEventListener('click', handleAutoTune, false);
 
-        var tempSmoothie = new SmoothieChart();
+        var tempSmoothie = new SmoothieChart({minValue: -10, maxValue: 200});
         tempSmoothie.streamTo(document.getElementById("coffee-temp"), 1000);
         var pidSmoothie = new SmoothieChart();
         pidSmoothie.streamTo(document.getElementById("coffee-pid"), 1000);
