@@ -12,6 +12,8 @@ public:
   void begin(const byte _spiCsPin);
   void update();
 
+  static const int INVALID_READING = -999;
+
 private:
   SettingsStorage *settings;
   int lastRead;

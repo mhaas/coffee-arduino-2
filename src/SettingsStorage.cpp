@@ -62,6 +62,10 @@ void SettingsStorage::setCurrentTemperature(double _currentTemperature) {
   currentTemperature = _currentTemperature;
 }
 
+void SettingsStorage::setPidOutput(double _pidOutput) {
+  pidOutput = _pidOutput;
+}
+
 void SettingsStorage::setTempOffset(double tempOffset) {
   store(tempOffset, &this->storage.tempOffset);
 }
@@ -72,6 +76,10 @@ double* SettingsStorage::getDesiredTemperature() {
 
 double* SettingsStorage::getCurrentTemperature() {
   return &this->currentTemperature;
+}
+
+double SettingsStorage::getPidOutput() {
+  return pidOutput;
 }
 
 double SettingsStorage::getTempOffset() {

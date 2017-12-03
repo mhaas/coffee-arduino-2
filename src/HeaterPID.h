@@ -16,6 +16,8 @@ class HeaterPID {
     void update();
     void triggerAutoTune();
 
+    static const int MAX_TEMPERATURE_ALLOWED = 130;
+
   private:
     PID* pid;
     PID_ATune* aTune;
@@ -33,6 +35,7 @@ class HeaterPID {
 
     void enableHeater();
     void disableHeater();
+    boolean checkSanity();
 
 };
 

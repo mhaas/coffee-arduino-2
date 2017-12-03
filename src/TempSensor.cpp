@@ -17,11 +17,17 @@ void TempSensor::update() {
   int now = millis();
   if (now > lastRead + TEMP_INTERVALL) {
     lastRead = now;
+    double rtd = sensor->readRTD();
+    DEBUG.print("RTD: ");
+    DEBUG.println(rtd);
     float temperature = sensor->temperature(R_AT_ZERO_DEGREES, R_REFERENCE);
     if (temperature < -50 || temperature > 200) {
       // Indicate that this is a bogus reading.
-      temperature = -1;
+      temperature = INVALID_READING;
+      DEBUG.println("TempSensor: Invalid reading detected!");
     }
+    DEBUG.print("temperature:");
+    DEBUG.println(temperature);
     settings->setCurrentTemperature(temperature);
   }
 }

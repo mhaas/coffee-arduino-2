@@ -96,6 +96,10 @@ void WebServer::handleGet() {
   object["kp"] = settings->getKp();
   object["ki"] = settings->getKi();
   object["kd"] = settings->getKd();
+  object["pid_output"] = settings->getPidOutput();
+
+  // TODO: add possibility to indicate errors, either via WebServer
+  // or via MQTT
 
   // see http://blog.benoitblanchon.fr/arduino-json-v5-0/
   // for a discussion on static VS dynamic allocation on embedded platforms

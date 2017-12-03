@@ -20,6 +20,16 @@
         width: 100%;
         clear: both;
       }
+
+      div.smoothie-chart-tooltip {
+        background: #444;
+        padding: 1em;
+        margin-top: 20px;
+        font-family: consolas;
+        color: white;
+        font-size: 10px;
+        pointer-events: none;
+      }
     </style>
     <script type="text/javascript" src="smoothie.js"></script>
     <script>
@@ -35,15 +45,18 @@
         let autoTuneButton = document.getElementById('button_autotune');
         autoTuneButton.addEventListener('click', handleAutoTune, false);
 
-        var tempSmoothie = new SmoothieChart({minValue: -10, maxValue: 200});
+        var tempSmoothie = new SmoothieChart({tooltip: true});
         tempSmoothie.streamTo(document.getElementById("coffee-temp"), 1000);
-        var pidSmoothie = new SmoothieChart();
-        pidSmoothie.streamTo(document.getElementById("coffee-pid"), 1000);
+        var pidOutputSmoothie = new SmoothieChart({tooltip: true});
+        pidOutputSmoothie.streamTo(document.getElementById("coffee-pid-output"), 1000);
+        var pidParamSmoothie = new SmoothieChart({tooltip: true});
+        pidParamSmoothie.streamTo(document.getElementById("coffee-pid-param"), 1000);
         var desiredLine = new TimeSeries();
         var curLine = new TimeSeries();
         var pLine = new TimeSeries();
         var iLine = new TimeSeries();
         var dLine = new TimeSeries();
+        var pidOutputLine = new TimeSeries();
 
 
         function fetchData() {
@@ -57,16 +70,20 @@
                 }
               }).
               then(function(data) {
+                // TODO: display current values in a separate field, it's hard
+                // to read in the plot
+                // TODO: display PID output
                 var time = new Date().getTime();
                 desiredLine.append(time, data.desired_temperature);
-                setInputValueIfNotSet('input_desired_temp', data.desired_temperature);
+                setInputValueOnlyOnce('input_desired_temp', data.desired_temperature);
                 curLine.append(time, data.current_temperature);
                 pLine.append(time, data.kp);
-                setInputValueIfNotSet('input_kp', data.kp);
+                setInputValueOnlyOnce('input_kp', data.kp);
                 iLine.append(time, data.ki);
-                setInputValueIfNotSet('input_ki', data.ki);
+                setInputValueOnlyOnce('input_ki', data.ki);
                 dLine.append(time, data.kd);
-                setInputValueIfNotSet('input_kd', data.kd);
+                setInputValueOnlyOnce('input_kd', data.kd);
+                pidOutputLine.append(tme, data.pid_output);
               }).
               catch(function (reason) {
                 console.log(`Error fetching data. Reason: ${reason}`, reason);
@@ -74,11 +91,13 @@
           );
         }
 
-        function setInputValueIfNotSet(inputId, value) {
+        let inputsTouched = {};
+        function setInputValueOnlyOnce(inputId, value) {
           const inputElement = document.getElementById(inputId);
-          if (inputElement.value === '') {
+          if (inputsTouched[inputId] === undefined) {
             inputElement.value = value;
           }
+          inputsTouched[inputId] = true;
         }
 
         setInterval(function() {
@@ -87,9 +106,10 @@
 
         tempSmoothie.addTimeSeries(desiredLine, { strokeStyle:'rgb(0, 255, 0)', fillStyle:'rgba(0, 255, 0, 0.4)', lineWidth:3 });
         tempSmoothie.addTimeSeries(curLine, { strokeStyle:'rgb(255, 0, 255)', fillStyle:'rgba(255, 0, 255, 0.3)', lineWidth:3 });
-        pidSmoothie.addTimeSeries(pLine);
-        pidSmoothie.addTimeSeries(iLine);
-        pidSmoothie.addTimeSeries(dLine);
+        pidOutputSmoothie.addTimeSeries(pidOutputLine);
+        pidParamSmoothie.addTimeSeries(pLine);
+        pidParamSmoothie.addTimeSeries(iLine);
+        pidParamSmoothie.addTimeSeries(dLine);
     }
     function handleAutoTune() {
         response = fetch('trigger_autotune', {'method': 'post'}).then(
@@ -149,7 +169,7 @@
       <div class="input-container">
         <label for="input_desired_temp">Desired Temperature</label>
         <input type="number" id="input_desired_temp" name="desired_temp"
-         required="true" min="0" max="200" step="0.5"/>
+         required="true" min="0" max="130" step="0.5"/>
        </div>
          <div>
         <button type="submit">Set</button>
@@ -157,7 +177,8 @@
     </form>
 
     <h4>PID</h4>
-    <canvas id="coffee-pid" width="500" height="200"></canvas>
+    <canvas id="coffee-pid-output" width="500" height="200"></canvas>
+    <canvas id="coffee-pid-param" width="500" height="200"></canvas>
     <br/>
     <button type="button" id="button_autotune">AutoTune</button>
     <form id="form_pid_params">

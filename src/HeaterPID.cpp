@@ -1,4 +1,6 @@
 #include "HeaterPID.h"
+// To get INVALID_READING
+#include "TempSensor.h"
 
 HeaterPID::HeaterPID(SettingsStorage *_settings) {
   settings = _settings;
@@ -6,17 +8,16 @@ HeaterPID::HeaterPID(SettingsStorage *_settings) {
 }
 
 void HeaterPID::begin(const int _relayPin) {
+  // TODO: limit desiredTemperature?
   relayPin = _relayPin;
+  pinMode(relayPin, OUTPUT);
+  disableHeater();
 
   pid = new PID(settings->getCurrentTemperature(), &pidOutput,
                 settings->getDesiredTemperature(), settings->getKp(),
                 settings->getKi(), settings->getKd(), DIRECT);
-  pinMode(relayPin, OUTPUT);
-  disableHeater();
 
   windowStartTime = millis();
-
-
 
   /** Set the window size for the time proportioning control.
 *  See the original PID_Relayoutput example.
@@ -60,10 +61,14 @@ void HeaterPID::update() {
     }
   }
 
-  pid->Compute();
+  if (!this->checkSanity()) {
+    DEBUG.println("HeaterPID: failed sanity check. Disabling heater!");
+    this->disableHeater();
+    return;
+  }
 
-  // TODO: what is the sample rate of the PID?
-  // does it make sense to update the pidOutput more than once during a period?
+  pid->Compute();
+  settings->setPidOutput(pidOutput);
 
   // How many milliseconds have passed since we have started the current window?
   float currentWindowElapsed = millis() - windowStartTime;
@@ -103,4 +108,30 @@ void HeaterPID::triggerAutoTune() {
   // TODO: there are parameters which look interesting, like
   // SetNoiseBand and SetLookbackSec. The defaults look useful.
   autoTuneRequested = true;
+}
+
+/**
+* Performs some checks if observed and desired values look sane. Returns false
+* if something bad is observed, e.g. temperature too high.
+*/
+boolean HeaterPID::checkSanity() {
+  double currentTemperature = *settings->getCurrentTemperature();
+  if (currentTemperature == TempSensor::INVALID_READING) {
+    DEBUG.println("HeaterPID: temperature is INVALID_READING!");
+    return false;
+  }
+  if (currentTemperature > MAX_TEMPERATURE_ALLOWED) {
+    DEBUG.println("HeaterPID: observed temperature higher than MAX_TEMPERATURE_ALLOWED");
+    return false;
+  }
+  double desiredTemperature = *settings->getDesiredTemperature();
+  if (desiredTemperature > MAX_TEMPERATURE_ALLOWED) {
+    DEBUG.println("HeaterPID: desired temperature higher than MAX_TEMPERATURE_ALLOWED");
+    return false;
+  }
+  if (desiredTemperature < 0) {
+    DEBUG.println("HeaterPID: desired temperatur < 0!");
+    return false;
+  }
+  return true;
 }

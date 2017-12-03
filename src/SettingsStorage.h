@@ -18,12 +18,14 @@ class SettingsStorage {
     void setDesiredTemperature(double _desiredTemp);
     void setTempOffset(double _tempOffset);
     void setCurrentTemperature(double currentTemperature);
+    void setPidOutput(double pidOutput);
     double* getDesiredTemperature();
     double getTempOffset();
     double getKp();
     double getKi();
     double getKd();
     double* getCurrentTemperature();
+    double getPidOutput();
 
 
     struct PidSettings {
@@ -48,6 +50,7 @@ class SettingsStorage {
     const double DEFAULT_HEATER_TEMP = 50;
 
     double currentTemperature = 0;
+    double pidOutput = 0;
 
     SettingsStorage::PidSettings storage = {
       .desiredTemperature = DEFAULT_HEATER_TEMP,
