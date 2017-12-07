@@ -85,7 +85,7 @@ void WebServer::handleSet() {
 
 void WebServer::handleGet() {
 
-  const int BUFFER_SIZE = JSON_OBJECT_SIZE(6);
+  const int BUFFER_SIZE = JSON_OBJECT_SIZE(7);
   StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
 
   JsonObject& object = jsonBuffer.createObject();
