@@ -83,7 +83,7 @@
                 setInputValueOnlyOnce('input_ki', data.ki);
                 dLine.append(time, data.kd);
                 setInputValueOnlyOnce('input_kd', data.kd);
-                pidOutputLine.append(tme, data.pid_output);
+                pidOutputLine.append(time, data.pid_output);
               }).
               catch(function (reason) {
                 console.log(`Error fetching data. Reason: ${reason}`, reason);
@@ -112,10 +112,10 @@
         pidParamSmoothie.addTimeSeries(dLine);
     }
     function handleAutoTune() {
-        response = fetch('trigger_autotune', {'method': 'post'}).then(
+        var response = fetch('trigger_autotune', {'method': 'post'}).then(
           function(response) {
             if (!response.ok) {
-              alert(`Error in autotune. Server returned status: ${respose.status}`);
+              alert(`Error in autotune. Server returned status: ${response.status}`);
             }
         }).catch(function (reason) {
           alert(`Error in autotune. Reason: ${reason}`);
@@ -177,8 +177,12 @@
     </form>
 
     <h4>PID</h4>
+    <div>
     <canvas id="coffee-pid-output" width="500" height="200"></canvas>
+  </div>
+  <div>
     <canvas id="coffee-pid-param" width="500" height="200"></canvas>
+  </div>
     <br/>
     <button type="button" id="button_autotune">AutoTune</button>
     <form id="form_pid_params">
