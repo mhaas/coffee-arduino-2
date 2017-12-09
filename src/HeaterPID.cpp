@@ -101,7 +101,7 @@ void HeaterPID::update() {
     // "Unsymmetrische Schwingungspaketsteuerungen" mentioned there may refer
     // to continously switching only one half-period
     // Also see https://de.wikipedia.org/wiki/Schwingungspaketsteuerung
-    double roundedPidOutput = floor(pidOutput  / PERIOD_DURATION) * PERIOD_DURATION;
+    double roundedPidOutput = round(pidOutput  / PERIOD_DURATION) * PERIOD_DURATION;
     settings->setPidOutput(roundedPidOutput);
     // TODO: for this logic to work, the function must be called every millisecond
     // If we know an offset, we should subtract that here
