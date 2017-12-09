@@ -136,6 +136,17 @@ void HeaterPID::triggerAutoTune() {
                         settings->getDesiredTemperature());
   // 0: PI, 1: PID
   aTune->SetControlType(0);
+  // Set the outputstep to 5: this is how many degrees celsius the autotuner will
+  // oscillate. Typically, we will want to vary the temperature by only a few degrees
+  // when brewing espresso, so the default of 30 is too much - and possibly
+  // dangerous. Luckily, if the autotuner applies an output step that's too high,
+  // that should be caught by the sanityCheck() below.
+  aTune->SetOutputStep(5);
+  // Changes in the order of less than 0.25 are ignored as noise
+  // This is half of the default.
+  aTune->SetNoiseBand(0.25);
+  // This is the default.
+  aTune->SetLookbackSec(10);
   // TODO: there are parameters which look interesting, like
   // SetNoiseBand and SetLookbackSec. The defaults look useful.
 }
