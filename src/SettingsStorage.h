@@ -52,12 +52,16 @@ class SettingsStorage {
     double currentTemperature = 0;
     double pidOutput = 0;
 
-    SettingsStorage::PidSettings storage = {
+    SettingsStorage::PidSettings storage;
+
+    SettingsStorage::PidSettings defaultSettings = {
       .desiredTemperature = DEFAULT_HEATER_TEMP,
       .tempOffset = 0,
       .kp = DEFAULT_HEATER_KP,
       .ki = DEFAULT_HEATER_KI,
-      .kd = DEFAULT_HEATER_KD
+      .kd = DEFAULT_HEATER_KD,
+      // TODO: duplicated from above
+      .configVersion = "124",
       };
 
     void store(double value, double* target);
