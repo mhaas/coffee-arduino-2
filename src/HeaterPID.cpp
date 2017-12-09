@@ -5,6 +5,7 @@
 HeaterPID::HeaterPID(SettingsStorage *_settings) {
   settings = _settings;
   autoTuneRequested = false;
+  turnedOff = true;
 }
 
 void HeaterPID::begin(const int _relayPin) {
@@ -34,6 +35,8 @@ void HeaterPID::begin(const int _relayPin) {
   // turn the PID on
   // TODO: initialize the temperature sensor variables
   pid->SetMode(AUTOMATIC);
+
+  turnedOff = false;
 }
 
 void HeaterPID::update() {
