@@ -6,8 +6,7 @@
 #include "SettingsStorage.h"
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
-#include <ESP8266WebServer.h>
-
+#include <functional>
 
 
 class HeaterPID {
@@ -17,7 +16,7 @@ class HeaterPID {
     void update();
     void end();
     void triggerAutoTune();
-    ESP8266WebServer::THandlerFunction getTriggerAutoTuneCallback();
+    std::function<void(void)> getTriggerAutoTuneCallback();
 
     static const int MAX_TEMPERATURE_ALLOWED = 130;
 

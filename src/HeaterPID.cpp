@@ -39,7 +39,7 @@ void HeaterPID::begin(const int _relayPin) {
 void HeaterPID::update() {
 
   if (!this->checkSanity()) {
-    DEBUG.println("HeaterPID: failed sanity check. Disabling heater!");
+    DEBUG.println("HeaterPID::update: failed sanity check. Disabling heater!");
     this->disableHeater();
     return;
   }
@@ -176,6 +176,6 @@ void HeaterPID::end() {
   this->update();
 }
 
-ESP8266WebServer::THandlerFunction HeaterPID::getTriggerAutoTuneCallback() {
+std::function<void(void)> HeaterPID::getTriggerAutoTuneCallback() {
   return std::bind(&HeaterPID::triggerAutoTune, this);
 }
