@@ -86,7 +86,7 @@ void HeaterPID::update() {
     DEBUG.print("Starting new window.");
     DEBUG.print("PID says: ");
     DEBUG.println(pidOutput);
-    // We always switch after a number of periods. If we do not respect
+    // We always switch after a number of full periods. If we do not respect
     // the period, the SSR may turn off after an uneven number of half-periods,
     // which can lead to noise in the power grid.
     // See again the TAB on the FH stralsund server, although the
@@ -95,6 +95,8 @@ void HeaterPID::update() {
     // Also see https://de.wikipedia.org/wiki/Schwingungspaketsteuerung
     double roundedPidOutput = floor(pidOutput  / PERIOD_DURATION) * PERIOD_DURATION;
     settings->setPidOutput(roundedPidOutput);
+    // TODO: for this logic to work, the function must be called every millisecond
+    // If we know an offset, we should subtract that here
     DEBUG.print("PID output rounded to grid frequency:");
     DEBUG.println(roundedPidOutput);
     DEBUG.print("Desired Temp:");
