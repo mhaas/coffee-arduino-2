@@ -6,6 +6,7 @@
 
 WebServer::WebServer(SettingsStorage* _settings) {
   settings = _settings;
+  httpd = ESP8266WebServer(HTTPD_PORT);
 }
 
 /**
@@ -15,8 +16,6 @@ WebServer::WebServer(SettingsStorage* _settings) {
 void WebServer::begin() {
 
   SPIFFS.begin();
-
-  httpd = ESP8266WebServer(HTTPD_PORT);
   /* Set up routing for the web server */
   // std::bind wraps a non-static method call so we can pass it as
   // a regular function pointer
