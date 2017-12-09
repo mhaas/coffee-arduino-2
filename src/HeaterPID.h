@@ -6,6 +6,7 @@
 #include "SettingsStorage.h"
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
+#include <ESP8266WebServer.h>
 
 
 
@@ -14,7 +15,9 @@ class HeaterPID {
     HeaterPID(SettingsStorage* settings);
     void begin(const int _relayPin);
     void update();
+    void end();
     void triggerAutoTune();
+    ESP8266WebServer::THandlerFunction getTriggerAutoTuneCallback();
 
     static const int MAX_TEMPERATURE_ALLOWED = 130;
 
@@ -23,6 +26,7 @@ class HeaterPID {
     PID_ATune* aTune;
     SettingsStorage* settings;
     bool autoTuneRequested;
+    bool turnedOff;
 
   /**
     * This variable holds the timestamp of the last started window.

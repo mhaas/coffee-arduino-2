@@ -8,7 +8,6 @@ HeaterPID::HeaterPID(SettingsStorage *_settings) {
 }
 
 void HeaterPID::begin(const int _relayPin) {
-  // TODO: limit desiredTemperature?
   relayPin = _relayPin;
   pinMode(relayPin, OUTPUT);
   disableHeater();
@@ -39,6 +38,18 @@ void HeaterPID::begin(const int _relayPin) {
 
 void HeaterPID::update() {
 
+  if (!this->checkSanity()) {
+    DEBUG.println("HeaterPID: failed sanity check. Disabling heater!");
+    this->disableHeater();
+    return;
+  }
+
+  if (this->turnedOff) {
+    DEBUG.println("HeaterPID::update: turnedOff is true! Disabling heater");
+    this->disableHeater();
+    return;
+  }
+
   if (autoTuneRequested) {
     if (aTune->Runtime() != 0) {
       // done auto-tuning
@@ -61,11 +72,6 @@ void HeaterPID::update() {
     }
   }
 
-  if (!this->checkSanity()) {
-    DEBUG.println("HeaterPID: failed sanity check. Disabling heater!");
-    this->disableHeater();
-    return;
-  }
 
   // Duration of one AC period. 20ms for 50Hz
   const double PERIOD_DURATION = 20.0;
@@ -76,7 +82,6 @@ void HeaterPID::update() {
 
   if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
     // time to shift the Relay Window
-    // TODO: just use current timestamp here?
     windowStartTime = millis();
     // We only switch on once and off once during HEATER_WINDOW_SIZE.
     // For now, we only compute the PID output once during that period:
@@ -121,13 +126,15 @@ void HeaterPID::disableHeater() {
 }
 
 void HeaterPID::triggerAutoTune() {
+  DEBUG.println("triggerAutoTune!");
+  autoTuneRequested = true;
+
   aTune = new PID_ATune(settings->getCurrentTemperature(),
                         settings->getDesiredTemperature());
   // 0: PI, 1: PID
   aTune->SetControlType(0);
   // TODO: there are parameters which look interesting, like
   // SetNoiseBand and SetLookbackSec. The defaults look useful.
-  autoTuneRequested = true;
 }
 
 /**
@@ -140,6 +147,7 @@ boolean HeaterPID::checkSanity() {
     // For the limits
     // This table is not in the current TAB, it seems, but should still be relevant
     DEBUG.println("HeaterPID: HEATER_WINDOW_SIZE too slow. Switching this often puts noise on the power grid.");
+    return false;
   }
   double currentTemperature = *settings->getCurrentTemperature();
   if (currentTemperature == TempSensor::INVALID_READING) {
@@ -160,4 +168,14 @@ boolean HeaterPID::checkSanity() {
     return false;
   }
   return true;
+}
+
+void HeaterPID::end() {
+  DEBUG.println("HeaterPID::end called!");
+  turnedOff = true;
+  this->update();
+}
+
+ESP8266WebServer::THandlerFunction HeaterPID::getTriggerAutoTuneCallback() {
+  return std::bind(&HeaterPID::triggerAutoTune, this);
 }

@@ -54,7 +54,7 @@ void setup() {
   // While global settings are handled via the SettingsStorage registry, simple void functions are
   // connected to the web server via callbacks
   // TODO: this is not working.
-  httpd.addTrigger("/trigger_autotune", std::bind(&HeaterPID::triggerAutoTune, pid));
+  httpd.addTrigger("/trigger_autotune", pid.getTriggerAutoTuneCallback());
   httpd.begin();
   wifi.begin(SSID, PASSWORD);
   tempSensor.begin(TEMP_SENSOR_CS_PIN);
