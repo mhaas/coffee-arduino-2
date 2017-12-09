@@ -67,8 +67,9 @@ void HeaterPID::update() {
     return;
   }
 
-  pid->Compute();
-  settings->setPidOutput(pidOutput);
+  // Duration of one AC period. 20ms for 50Hz
+  const double PERIOD_DURATION = 20.0;
+
 
   // How many milliseconds have passed since we have started the current window?
   float currentWindowElapsed = millis() - windowStartTime;
@@ -76,9 +77,26 @@ void HeaterPID::update() {
   if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
     // time to shift the Relay Window
     // TODO: just use current timestamp here?
-    windowStartTime += HEATER_WINDOW_SIZE;
-    DEBUG.print("Starting new window. PID says: ");
+    windowStartTime = millis();
+    // We only switch on once and off once during HEATER_WINDOW_SIZE.
+    // For now, we only compute the PID output once during that period:
+    // But we can compute it more often and then adjust the heating duration
+    // as long as it does not cause additional switches
+    pid->Compute();
+    DEBUG.print("Starting new window.");
+    DEBUG.print("PID says: ");
     DEBUG.println(pidOutput);
+    // We always switch after a number of periods. If we do not respect
+    // the period, the SSR may turn off after an uneven number of half-periods,
+    // which can lead to noise in the power grid.
+    // See again the TAB on the FH stralsund server, although the
+    // "Unsymmetrische Schwingungspaketsteuerungen" mentioned there may refer
+    // to continously switching only one half-period
+    // Also see https://de.wikipedia.org/wiki/Schwingungspaketsteuerung
+    double roundedPidOutput = floor(pidOutput  / PERIOD_DURATION) * PERIOD_DURATION;
+    settings->setPidOutput(roundedPidOutput);
+    DEBUG.print("PID output rounded to grid frequency:");
+    DEBUG.println(roundedPidOutput);
     DEBUG.print("Desired Temp:");
     DEBUG.println(*(settings->getDesiredTemperature()));
   }
@@ -115,6 +133,12 @@ void HeaterPID::triggerAutoTune() {
 * if something bad is observed, e.g. temperature too high.
 */
 boolean HeaterPID::checkSanity() {
+  if (HEATER_WINDOW_SIZE < 600) {
+    // See Table 2 here: http://antriebstechnik.fh-stralsund.de/1024x768/Dokumentenframe/Kompendium/TAB/TAB.htm
+    // For the limits
+    // This table is not in the current TAB, it seems, but should still be relevant
+    DEBUG.println("HeaterPID: HEATER_WINDOW_SIZE too slow. Switching this often puts noise on the power grid.");
+  }
   double currentTemperature = *settings->getCurrentTemperature();
   if (currentTemperature == TempSensor::INVALID_READING) {
     DEBUG.println("HeaterPID: temperature is INVALID_READING!");
