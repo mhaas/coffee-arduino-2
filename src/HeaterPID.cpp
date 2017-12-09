@@ -164,8 +164,12 @@ boolean HeaterPID::checkSanity() {
     return false;
   }
   double currentTemperature = *settings->getCurrentTemperature();
+  if (isnan(currentTemperature)) {
+    DEBUG.println("HeaterPID:checkSanity: observed temperature is NaN!");
+    return false;
+  }
   if (currentTemperature == TempSensor::INVALID_READING) {
-    DEBUG.println("HeaterPID: temperature is INVALID_READING!");
+    DEBUG.println("HeaterPID: observed temperature is INVALID_READING!");
     return false;
   }
   if (currentTemperature > MAX_TEMPERATURE_ALLOWED) {
@@ -173,6 +177,10 @@ boolean HeaterPID::checkSanity() {
     return false;
   }
   double desiredTemperature = *settings->getDesiredTemperature();
+  if (isnan(desiredTemperature)) {
+    DEBUG.println("HeaterPID: desired temperature is NaN!");
+    return false;
+  }
   if (desiredTemperature > MAX_TEMPERATURE_ALLOWED) {
     DEBUG.println("HeaterPID: desired temperature higher than MAX_TEMPERATURE_ALLOWED");
     return false;
