@@ -27,7 +27,7 @@ class WebServer {
     const char* KD_KEY = "kd";
     const int HTTPD_PORT = 80;
     SettingsStorage* settings;
-    ESP8266WebServer httpd;
+    ESP8266WebServer* httpd;
     void handleRoot();
     void handleNotFound();
     void handleSet();

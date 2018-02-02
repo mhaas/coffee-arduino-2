@@ -6,7 +6,7 @@
 
 WebServer::WebServer(SettingsStorage* _settings) {
   settings = _settings;
-  httpd = ESP8266WebServer(HTTPD_PORT);
+  httpd = new ESP8266WebServer(HTTPD_PORT);
 }
 
 /**
@@ -20,16 +20,16 @@ void WebServer::begin() {
   // std::bind wraps a non-static method call so we can pass it as
   // a regular function pointer
   // See e.g. http://arduino.stackexchange.com/questions/14157/passing-class-member-function-as-argument
-  httpd.serveStatic("/", SPIFFS, "/wwwroot/index.html");
-  httpd.serveStatic("/smoothie.js", SPIFFS, "/wwwroot/smoothie.js");
-  httpd.on("/set", HTTP_POST, std::bind(&WebServer::handleSet, this));
-  httpd.on("/get", HTTP_GET, std::bind(&WebServer::handleGet, this));
-  httpd.onNotFound(std::bind(&WebServer::handleNotFound, this));
-  httpd.begin();
+  httpd->serveStatic("/", SPIFFS, "/wwwroot/index.html");
+  httpd->serveStatic("/smoothie.js", SPIFFS, "/wwwroot/smoothie.js");
+  httpd->on("/set", HTTP_POST, std::bind(&WebServer::handleSet, this));
+  httpd->on("/get", HTTP_GET, std::bind(&WebServer::handleGet, this));
+  httpd->onNotFound(std::bind(&WebServer::handleNotFound, this));
+  httpd->begin();
 }
 
 void WebServer::handleNotFound () {
-  httpd.send(404, "text/plain", "Not found");
+  httpd->send(404, "text/plain", "Not found");
 }
 
 void WebServer::handleSet() {
@@ -40,10 +40,10 @@ void WebServer::handleSet() {
 
   // Iterate over all keys
   // TODO: handle remaining keys
-  for (int i = 0; i < httpd.args(); i++) {
+  for (int i = 0; i < httpd->args(); i++) {
 
-    key = httpd.argName(i);
-    value = httpd.arg(i);
+    key = httpd->argName(i);
+    value = httpd->arg(i);
 
     bool valid = true;
 
@@ -76,9 +76,9 @@ void WebServer::handleSet() {
   }
 
   if (fail) {
-    httpd.send(500, "text/plain", msg);
+    httpd->send(500, "text/plain", msg);
   } else {
-    httpd.send(200, "text/plain", msg);
+    httpd->send(200, "text/plain", msg);
   }
 }
 
@@ -107,22 +107,22 @@ void WebServer::handleGet() {
   String buf;
   object.printTo(buf);
 
-  httpd.send(200, "application/json", buf);
+  httpd->send(200, "application/json", buf);
 
 }
 
 void WebServer::update() {
-  httpd.handleClient();
+  httpd->handleClient();
 }
 
 void WebServer::handleTrigger(ESP8266WebServer::THandlerFunction trigger) {
-  // Small wrapper around a trigger which calls httpd.send() to end the connection
+  // Small wrapper around a trigger which calls httpd->send() to end the connection
   // From my reading of the source code, this does not happen automatically
   trigger();
-  httpd.send(200, "text/plain", "OK");
+  httpd->send(200, "text/plain", "OK");
 }
 
 // Execute a callback if the given uri is requested via POST
 void WebServer::addTrigger(const char* uri, ESP8266WebServer::THandlerFunction trigger) {
-  httpd.on(uri, HTTP_POST, std::bind(&WebServer::handleTrigger, this, trigger));
+  httpd->on(uri, HTTP_POST, std::bind(&WebServer::handleTrigger, this, trigger));
 }
