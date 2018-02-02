@@ -59,7 +59,12 @@ void setup() {
   wifi.begin(SSID, PASSWORD);
   tempSensor.begin(TEMP_SENSOR_CS_PIN);
 
-   ArduinoOTA.begin();
+  ArduinoOTA.onStart([]() {
+    DEBUG.println("OTA started!");
+    DEBUG.println("Turning off HeaterPID");
+    pid.end();
+  });
+  ArduinoOTA.begin();
  }
 
 
