@@ -21,10 +21,15 @@ void TempSensor::update() {
     double rtd = sensor->readRTD();
     DEBUG.print("RTD: ");
     DEBUG.println(rtd);
+
     float temperature = sensor->temperature(R_AT_ZERO_DEGREES, R_REFERENCE);
     DEBUG.print("temperature:");
     DEBUG.println(temperature);
 
+    if (isnan(rtd) || isnan(temperature)) {
+      temperature = INVALID_READING;
+      DEBUG.println("TempSensor: rtd or temperature is NaN. Invalid reading detected!");
+    }
     if (temperature < -50 || temperature > 200) {
       // Indicate that this is a bogus reading.
       temperature = INVALID_READING;
