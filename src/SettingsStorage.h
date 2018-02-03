@@ -26,7 +26,7 @@ class SettingsStorage {
     double getKd();
     double* getCurrentTemperature();
     double getPidOutput();
-    String& toJSON();
+    void toJSON(String& dest);
 
 
     struct PidSettings {

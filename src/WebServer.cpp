@@ -82,10 +82,9 @@ void WebServer::handleSet() {
 }
 
 void WebServer::handleGet() {
-  String settingsAsJSON  = settings->toJSON();
-
-  httpd->send(200, "application/json", settingsAsJSON);
-
+  String json;
+  settings->toJSON(json);
+  httpd->send(200, "application/json", json);
 }
 
 void WebServer::update() {
@@ -96,6 +95,8 @@ void WebServer::handleTrigger(ESP8266WebServer::THandlerFunction trigger) {
   // Small wrapper around a trigger which calls httpd->send() to end the connection
   // From my reading of the source code, this does not happen automatically
   httpd->send(202, "text/plain", "Accepted");
+  httpd->close();
+  delay(500);
   trigger();
 }
 
