@@ -35,6 +35,7 @@ boolean MQTTPublisher::reconnect() {
 }
 
 void MQTTPublisher::update() {
+  _mqttClient.loop();
   if (millis() - _lastUpdateTime <  MQTT_PUBLISH_CYCLE) {
     return;
   }
