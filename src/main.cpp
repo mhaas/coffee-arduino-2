@@ -77,15 +77,19 @@ void setup() {
 
  }
 
+ void rearmWatchDog() {
+   loopWatchDog.detach();
+   loopWatchDog.attach_ms(MAIN_LOOP_WATCHDOG_TIMEOUT, restart);
+ }
 
 // the loop function runs over and over again forever
 void loop() {
-  loopWatchDog.attach_ms(MAIN_LOOP_WATCHDOG_TIMEOUT, restart);
+  rearmWatchDog();
   ArduinoOTA.handle();
   httpd.update();
   tempSensor.update();
   wifi.update();
   pid.update();
   publisher.update();
-  loopWatchDog.detach();
+  rearmWatchDog();
 }
