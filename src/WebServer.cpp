@@ -1,4 +1,3 @@
-#include <ArduinoJson.h>
 
 #include "WebServer.h"
 #include <Arduino.h>
@@ -83,31 +82,9 @@ void WebServer::handleSet() {
 }
 
 void WebServer::handleGet() {
+  String settingsAsJSON  = settings->toJSON();
 
-  const int BUFFER_SIZE = JSON_OBJECT_SIZE(7);
-  StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
-
-  JsonObject& object = jsonBuffer.createObject();
-
-  object["current_temperature"] = *(settings->getCurrentTemperature());
-  object["desired_temperature"] = *(settings->getDesiredTemperature());
-  object["temp_offset"] = settings->getTempOffset();
-  object["kp"] = settings->getKp();
-  object["ki"] = settings->getKi();
-  object["kd"] = settings->getKd();
-  object["pid_output"] = settings->getPidOutput();
-
-  // TODO: add possibility to indicate errors, either via WebServer
-  // or via MQTT
-
-  // see http://blog.benoitblanchon.fr/arduino-json-v5-0/
-  // for a discussion on static VS dynamic allocation on embedded platforms
-
-  // On the other hand, send() wants a String
-  String buf;
-  object.printTo(buf);
-
-  httpd->send(200, "application/json", buf);
+  httpd->send(200, "application/json", settingsAsJSON);
 
 }
 
@@ -118,8 +95,8 @@ void WebServer::update() {
 void WebServer::handleTrigger(ESP8266WebServer::THandlerFunction trigger) {
   // Small wrapper around a trigger which calls httpd->send() to end the connection
   // From my reading of the source code, this does not happen automatically
+  httpd->send(202, "text/plain", "Accepted");
   trigger();
-  httpd->send(200, "text/plain", "OK");
 }
 
 // Execute a callback if the given uri is requested via POST

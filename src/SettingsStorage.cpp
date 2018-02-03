@@ -1,4 +1,5 @@
 #include "SettingsStorage.h"
+#include <ArduinoJson.h>
 #include <EEPROM.h>
 
 
@@ -97,4 +98,30 @@ double SettingsStorage::getKi() {
 
 double SettingsStorage::getKd() {
   return this->storage.kd;
+}
+
+String& SettingsStorage::toJSON() {
+  const int BUFFER_SIZE = JSON_OBJECT_SIZE(8);
+  StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
+
+  JsonObject& object = jsonBuffer.createObject();
+
+  object["current_temperature"] = *(this->getCurrentTemperature());
+  object["desired_temperature"] = *(this->getDesiredTemperature());
+  object["temp_offset"] = this->getTempOffset();
+  object["kp"] = this->getKp();
+  object["ki"] = this->getKi();
+  object["kd"] = this->getKd();
+  object["pid_output"] = this->getPidOutput();
+  object["free_heap"] = ESP.getFreeHeap();
+  // TODO: add possibility to indicate errors, either via WebServer
+  // or via MQTT
+
+  // see http://blog.benoitblanchon.fr/arduino-json-v5-0/
+  // for a discussion on static VS dynamic allocation on embedded platforms
+  static String buf;
+  object.printTo(buf);
+
+  return buf;
+
 }
