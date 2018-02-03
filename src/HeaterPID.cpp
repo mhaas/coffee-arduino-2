@@ -32,6 +32,12 @@ void HeaterPID::begin(const int _relayPin) {
   // We can switch every 20ms: 1000 * 50Hz
   pid->SetOutputLimits(0, HEATER_WINDOW_SIZE);
 
+  // Only sample once every period. Otherwise, the errors will be accumulated
+  // more than once per sample period, but we ignore any changed PID output,
+  // hence the error will grow larger.
+  // This call should thus reduce erratic behavior by the PID algorithm.
+  pid->SetSampleTime(HEATER_WINDOW_SIZE);
+
   // turn the PID on
   // TODO: initialize the temperature sensor variables
   pid->SetMode(AUTOMATIC);
