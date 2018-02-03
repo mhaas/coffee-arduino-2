@@ -1,14 +1,18 @@
 #include "MQTTPublisher.h"
 
-MQTTPublisher::MQTTPublisher(SettingsStorage *_settings) {
-  _settings = _settings;
+MQTTPublisher::MQTTPublisher(SettingsStorage *settings) {
+  this->_settings = settings;
  _mqttClient = PubSubClient(_espClient);
 }
 
 void MQTTPublisher::begin(const char* mqttServer, int mqttPort) {
   _espClient.setTimeout(MQTT_TIMEOUT);
   _mqttClient.setServer(mqttServer, mqttPort);
-  if (!this->reconnect()) {
+  // ensure that we publish/connect as soon as possible, and not after the uptime
+  // exceeds MQTT_PUBLISH_CYCLE/MQTT_RECONNECT_CYCLE
+  _lastUpdateTime = MQTT_PUBLISH_CYCLE;
+  _lastReconnectAttempt = MQTT_RECONNECT_CYCLE;
+  if (!this->reconnectIfNecessary()) {
     DEBUG.println("MQTTPublisher: Initial connection attempt failed. Will keep trying.");
   }
 }
@@ -19,10 +23,8 @@ boolean MQTTPublisher::reconnectIfNecessary() {
     // Attempt to connect every 5s if we are not connected
     if (now - this->_lastReconnectAttempt > MQTT_RECONNECT_CYCLE) {
       this->_lastReconnectAttempt = now;
-      if (this->reconnect()) {
-         this->_lastReconnectAttempt = 0;
+      this->reconnect();
       }
-    }
   }
   return this->_mqttClient.connected();
 }
