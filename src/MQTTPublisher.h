@@ -2,10 +2,6 @@
 
 #define MQTT_PUBLISHER_H
 
-// Default packet size is 128,
-// which is not enough for our JSON payload.
-#define MQTT_MAX_PACKET_SIZE 4096
-
 #include "SettingsStorage.h"
 #include <WiFiClient.h>
 #include <PubSubClient.h>
