@@ -11,16 +11,18 @@
 
 #include <Arduino.h>
 #include <ArduinoOTA.h>
+#include <Ticker.h>
+
 #include "WebServer.h"
 #include "TempSensor.h"
 #include "WifiWrapper.h"
 #include "HeaterPID.h"
 #include "MQTTPublisher.h"
-
 #include "secret.h"
 
-
-
+// The loop is not allowed to take more than 2s. That's a lot already, given
+// that the pid cycle is only 1s.
+#define MAIN_LOOP_WATCHDOG_TIMEOUT 2000
 
 /**
  * Default desired heater temperature in degrees celsius if no
@@ -44,7 +46,10 @@ HeaterPID pid = HeaterPID(&settings);
 
 MQTTPublisher publisher = MQTTPublisher(&settings);
 
+Ticker loopWatchDog;
+
 void restart() {
+  pid.end();
   ESP.restart();
 }
 
@@ -68,6 +73,8 @@ void setup() {
     DEBUG.println("OTA started!");
     DEBUG.println("Turning off HeaterPID");
     pid.end();
+    DEBUG.println("Disabling main loop watchdog!");
+    loopWatchDog.detach();
   });
   ArduinoOTA.begin();
 
@@ -78,10 +85,12 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
+  loopWatchDog.attach_ms(MAIN_LOOP_WATCHDOG_TIMEOUT, restart);
   ArduinoOTA.handle();
   httpd.update();
   tempSensor.update();
   wifi.update();
   pid.update();
   publisher.update();
+  loopWatchDog.detach();
 }
