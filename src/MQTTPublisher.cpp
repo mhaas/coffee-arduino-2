@@ -1,7 +1,3 @@
-
-// Default packet size is 128,
-// whichc is not enough for our JSON payload.
-#define MQTT_MAX_PACKET_SIZE 4096
 #include "MQTTPublisher.h"
 
 MQTTPublisher::MQTTPublisher(SettingsStorage *_settings) {
@@ -9,12 +5,8 @@ MQTTPublisher::MQTTPublisher(SettingsStorage *_settings) {
  _mqttClient = PubSubClient(_espClient);
 }
 
-void MQTTPublisher::begin(char* mqttServer, int mqttPort) {
-  // The default timeout is 5000ms, which is too long: we do not want to
-  // block the HeaterPID loop this long.
-  // Worst case is one timeout period for the DNS lookup and one timeout
-  // period for the actual connect.
-  _espClient.setTimeout(300);
+void MQTTPublisher::begin(const char* mqttServer, int mqttPort) {
+  _espClient.setTimeout(MQTT_TIMEOUT);
   _mqttClient.setServer(mqttServer, mqttPort);
   if (!this->reconnect()) {
     DEBUG.println("MQTTPublisher: Initial connection attempt failed. Will keep trying.");
@@ -25,7 +17,7 @@ boolean MQTTPublisher::reconnectIfNecessary() {
   if (!this->_mqttClient.connected()) {
     long now = millis();
     // Attempt to connect every 5s if we are not connected
-    if (now - this->_lastReconnectAttempt > 5000) {
+    if (now - this->_lastReconnectAttempt > MQTT_RECONNECT_CYCLE) {
       this->_lastReconnectAttempt = now;
       if (this->reconnect()) {
          this->_lastReconnectAttempt = 0;
@@ -35,7 +27,6 @@ boolean MQTTPublisher::reconnectIfNecessary() {
   return this->_mqttClient.connected();
 }
 
-
 boolean MQTTPublisher::reconnect() {
   if (_mqttClient.connect(NODE_NAME)) {
     DEBUG.println("MQTT connected!");
@@ -43,12 +34,16 @@ boolean MQTTPublisher::reconnect() {
   return _mqttClient.connected();
 }
 
-
 void MQTTPublisher::update() {
+  if (millis() - _lastUpdateTime <  MQTT_PUBLISH_CYCLE) {
+    return;
+  }
+  // reconnectIfNecessary
   boolean connected = this->reconnectIfNecessary();
   if (connected) {
     this->publish();
   }
+  _lastUpdateTime = millis();
 }
 
 void MQTTPublisher::publish() {

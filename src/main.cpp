@@ -15,6 +15,8 @@
 #include "TempSensor.h"
 #include "WifiWrapper.h"
 #include "HeaterPID.h"
+#include "MQTTPublisher.h"
+
 #include "secret.h"
 
 
@@ -40,21 +42,24 @@ WifiWrapper wifi = WifiWrapper();
 
 HeaterPID pid = HeaterPID(&settings);
 
+MQTTPublisher publisher = MQTTPublisher(&settings);
+
+void restart() {
+  ESP.restart();
+}
+
 // the setup function runs once when you press reset or power the board
 void setup() {
   DEBUG.begin(DEBUG_BEGIN_ARG);
-
-  // TODO: are the relays low-active?
-  // https://arduino-info.wikispaces.com/ArduinoPower
   // Initialize and reset pins
-
   settings.begin();
   pid.begin(HEATER_RELAY_PIN);
   // Connect URI-based triggers
   // While global settings are handled via the SettingsStorage registry, simple void functions are
   // connected to the web server via callbacks
-  // TODO: this is not working.
   httpd.addTrigger("/trigger_autotune", pid.getTriggerAutoTuneCallback());
+  httpd.addTrigger("/trigger_restart", restart);
+
   httpd.begin();
   wifi.begin(SSID, PASSWORD);
   tempSensor.begin(TEMP_SENSOR_CS_PIN);
@@ -65,6 +70,9 @@ void setup() {
     pid.end();
   });
   ArduinoOTA.begin();
+
+  publisher.begin(MQTT_HOST, 1883);
+
  }
 
 
@@ -75,4 +83,5 @@ void loop() {
   tempSensor.update();
   wifi.update();
   pid.update();
+  publisher.update();
 }
