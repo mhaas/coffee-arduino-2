@@ -4,11 +4,6 @@
  *
  */
 
-
-// TODO:  add own watchdog code to prevent heater from running too long:
-// https://github.com/esp8266/Arduino/issues/1532
-
-
 #include <Arduino.h>
 #include <ArduinoOTA.h>
 #include <Ticker.h>
