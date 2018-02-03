@@ -143,6 +143,7 @@
         requestBodyItems.push(keyValuePair[0] + '=' +
          encodeURIComponent(keyValuePair[1]));
       }
+      let additionalRequestHeaders = {'Content-Type': 'application/x-www-form-urlencoded'}
       let requestBody = requestBodyItems.join("&");
       fetch('/set', {method: 'post', body: requestBody }).then(
         function(response) {
