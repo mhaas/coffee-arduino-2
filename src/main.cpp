@@ -74,7 +74,6 @@ void setup() {
   ArduinoOTA.begin();
 
   publisher.begin(MQTT_HOST, 1883);
-
  }
 
  void rearmWatchDog() {
