@@ -96,11 +96,14 @@ void HeaterPID::update() {
   // Duration of one AC period. 20ms for 50Hz
   const double PERIOD_DURATION = 20.0;
 
-
   // How many milliseconds have passed since we have started the current window?
   float currentWindowElapsed = millis() - windowStartTime;
 
   if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
+    // We may have gotten an update on the PID parameters, so update
+    // them on every cycle
+    pid->SetTunings(settings->getKp(), settings->getKi(), settings->getKd());
+
     // time to shift the Relay Window
     windowStartTime = millis();
     currentWindowElapsed = 0;
