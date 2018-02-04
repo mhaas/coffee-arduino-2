@@ -7,6 +7,8 @@
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
 #include <functional>
+// To get INVALID_READING
+#include "TempSensor.h"
 
 
 class HeaterPID {

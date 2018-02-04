@@ -1,6 +1,5 @@
 #include "HeaterPID.h"
-// To get INVALID_READING
-#include "TempSensor.h"
+
 
 HeaterPID::HeaterPID(SettingsStorage *_settings) {
   settings = _settings;
