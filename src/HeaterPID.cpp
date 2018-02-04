@@ -12,10 +12,14 @@ void HeaterPID::begin(const int _relayPin) {
   pinMode(relayPin, OUTPUT);
   disableHeater();
 
-  // We use P_ON_M as this should have a great benefit
+  // We could use P_ON_M as this should have a great benefit
   // for "integrative" applications, e.g. heating.
+  // However, literature on tuning P_ON_M (or I-PD, as they are sometimes called)
+  // is really scarce and it makes the P part more complex (also keeping a history on that),
+  // so P_ON_E is easier to handle.
+  //
   // See http://brettbeauregard.com/blog/2017/06/introducing-proportional-on-measurement
-  // for a discussion
+  // for a details on P_ON_M
   // Caveat: Brettb states that the benefit is only realzed on setpoint
   // (e.g. desired temp) changes:
   // https://groups.google.com/d/msg/diy-pid-control/010XXPMMlfM/VZijD04WBAAJ
@@ -23,9 +27,13 @@ void HeaterPID::begin(const int _relayPin) {
   // even with a steady setpoint (e.g. less overshoot)
   // All in all, I hope this allows more aggressive (faster) temperature recovery
   // without as much overshot.
+
+  // kP: unitless
+  // kI: 1 * s
+  // kD: 1/s
   pid = new PID(settings->getCurrentTemperature(), &pidOutput,
                 settings->getDesiredTemperature(), settings->getKp(),
-                settings->getKi(), settings->getKd(), DIRECT, P_ON_M);
+                settings->getKi(), settings->getKd(), DIRECT);
 
   windowStartTime = millis();
 
