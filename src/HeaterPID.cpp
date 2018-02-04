@@ -110,7 +110,7 @@ void HeaterPID::update() {
   if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
     // We may have gotten an update on the PID parameters, so update
     // them on every cycle
-    pid->SetTunings(settings->getKp(), settings->getKi(), settings->getKd());
+    //pid->SetTunings(settings->getKp(), settings->getKi(), settings->getKd());
 
     // time to shift the Relay Window
     windowStartTime = millis();
