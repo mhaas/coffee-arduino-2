@@ -44,7 +44,7 @@ void WebServer::handleSet() {
     key = httpd->argName(i);
     value = httpd->arg(i);
 
-    bool valid = true;
+    bool current_fail = false;
 
     if (key == DESIRED_TEMPERATURE_KEY)  {
       settings->setDesiredTemperature(value.toFloat());
@@ -57,10 +57,10 @@ void WebServer::handleSet() {
     } else if (key == KD_KEY) {
       settings->setKd(value.toFloat());
     } else {
-      valid = false;
+      current_fail = true;
     }
 
-    if (valid) {
+    if (! current_fail) {
       msg += "Processed key: ";
       msg += key;
       msg += ", value:";
@@ -71,7 +71,7 @@ void WebServer::handleSet() {
       msg += key;
     }
 
-    fail &= valid;
+    fail = current_fail || fail;
   }
 
   if (fail) {
