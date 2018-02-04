@@ -23,7 +23,15 @@ void TempSensor::update() {
     DEBUG.println(rtd);
 
     float temperature = sensor->temperature(R_AT_ZERO_DEGREES, R_REFERENCE);
-    DEBUG.print("temperature:");
+
+    DEBUG.print("temperature: ");
+    DEBUG.println(temperature);
+
+    // This is essentially a low-pass filter that can be helpful
+    // for the D part in the PID.
+    temperature = roundf(temperature * 100 ) / 100;
+
+    DEBUG.println("rounded temperature: ");
     DEBUG.println(temperature);
 
     if (isnan(rtd) || isnan(temperature)) {
