@@ -145,7 +145,7 @@
       }
       let additionalRequestHeaders = {'Content-Type': 'application/x-www-form-urlencoded'}
       let requestBody = requestBodyItems.join("&");
-      fetch('/set', {method: 'post', body: requestBody }).then(
+      fetch('/set', {method: 'post', body: requestBody, headers: additionalRequestHeaders }).then(
         function(response) {
           if (response.status !== 200) {
             alert(`Error submitting form. Response: ${response.status}`);
