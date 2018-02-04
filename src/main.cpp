@@ -20,12 +20,6 @@
 #define MAIN_LOOP_WATCHDOG_TIMEOUT 2000
 
 /**
- * Default desired heater temperature in degrees celsius if no
- * value is set in the EEPROM
- */
-
-
-/**
  * End configuration constants
  */
 
