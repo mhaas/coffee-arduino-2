@@ -93,6 +93,7 @@ void HeaterPID::update() {
   if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
     // time to shift the Relay Window
     windowStartTime = millis();
+    currentWindowElapsed = 0;
     // We only switch on once and off once during HEATER_WINDOW_SIZE.
     // For now, we only compute the PID output once during that period:
     // But we can compute it more often and then adjust the heating duration
