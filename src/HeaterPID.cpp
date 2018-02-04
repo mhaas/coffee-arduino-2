@@ -155,8 +155,6 @@ void HeaterPID::triggerAutoTune() {
   aTune->SetNoiseBand(0.25);
   // This is the default.
   aTune->SetLookbackSec(10);
-  // TODO: there are parameters which look interesting, like
-  // SetNoiseBand and SetLookbackSec. The defaults look useful.
 }
 
 /**
