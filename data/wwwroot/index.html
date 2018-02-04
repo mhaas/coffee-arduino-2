@@ -45,6 +45,9 @@
         let autoTuneButton = document.getElementById('button_autotune');
         autoTuneButton.addEventListener('click', handleAutoTune, false);
 
+        let restartButton = document.getElementById('button_restart');
+        autoTuneButton.addEventListener('click', handleRestart, false);
+
         var tempSmoothie = new SmoothieChart({tooltip: true});
         tempSmoothie.streamTo(document.getElementById("coffee-temp"), 1000);
         var pidOutputSmoothie = new SmoothieChart({tooltip: true});
@@ -111,17 +114,27 @@
         pidParamSmoothie.addTimeSeries(iLine);
         pidParamSmoothie.addTimeSeries(dLine);
     }
-    function handleAutoTune() {
-        var response = fetch('trigger_autotune', {'method': 'post'}).then(
-          function(response) {
-            if (!response.ok) {
-              alert(`Error in autotune. Server returned status: ${response.status}`);
-            }
-        }).catch(function (reason) {
-          alert(`Error in autotune. Reason: ${reason}`);
-        });
-        return false;
+
+    function handleTrigger(endpoint) {
+      var response = fetch(endpoint, {'method': 'post'}).then(
+        function(response) {
+          if (!response.ok) {
+            alert(`Error in ${endpoint}. Server returned status: ${response.status}`);
+          }
+      }).catch(function (reason) {
+        alert(`Error in ${endpoint}. Reason: ${reason}`);
+      });
+      return false;
     }
+
+    function handleAutoTune() {
+        return handleTrigger('trigger_autotune');
+    }
+
+    handle handleRestart() {
+      return handleTrigger('trigger_restart');
+    }
+
     function submitDesiredTemperatureForm(event) {
       // return false does not seem to work, so use
       // event.preventDefault
@@ -209,5 +222,7 @@
         <button type="submit">Set</button>
       </div>
     </form>
+    <br/>
+    <button type="button" id="button_restart">Restart</button>
   </body>
 </html>
