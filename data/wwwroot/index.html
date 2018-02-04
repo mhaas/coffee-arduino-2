@@ -46,7 +46,7 @@
         autoTuneButton.addEventListener('click', handleAutoTune, false);
 
         let restartButton = document.getElementById('button_restart');
-        autoTuneButton.addEventListener('click', handleRestart, false);
+        restartButton.addEventListener('click', handleRestart, false);
 
         var tempSmoothie = new SmoothieChart({tooltip: true});
         tempSmoothie.streamTo(document.getElementById("coffee-temp"), 1000);
