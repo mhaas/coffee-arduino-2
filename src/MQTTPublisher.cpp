@@ -56,13 +56,17 @@ void MQTTPublisher::publish() {
   this->publishStringToSubTopic(topic, json);
 }
 
-
 void MQTTPublisher::log(String& logMessage) {
   String topic = String("/log");
+  DEBUG.println(logMessage);
   this->publishStringToSubTopic(topic, logMessage);
 }
 
 void MQTTPublisher::publishStringToSubTopic(String& subTopic, String& message) {
+  if (!_mqttClient.connected()) {
+    DEBUG.println("Failed to publish to MQTT: client not connected!");
+    return;
+  }
   String topic = String("/") + String(NODE_NAME) + subTopic;
   boolean result = _mqttClient.publish(topic.c_str(), message.c_str());
   if (! result) {
