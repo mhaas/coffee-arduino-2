@@ -219,6 +219,14 @@ boolean HeaterPID::checkSanity() {
   return true;
 }
 
+void HeaterPID::turnOffPIDAlgorithm() {
+  // Disables the PID algorithm and sets the pidOutput to zero.
+  // Does not prevent update() from running.
+  DEBUG.println("HeaterPID::turnOffPIDAlgorithm called!");
+  pid->SetMode(MANUAL);
+  pidOutput = 0;
+}
+
 void HeaterPID::end() {
   DEBUG.println("HeaterPID::end called!");
   turnedOff = true;

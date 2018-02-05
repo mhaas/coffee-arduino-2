@@ -41,6 +41,7 @@ class HeaterPID {
     void enableHeater();
     void disableHeater();
     boolean checkSanity();
+    void turnOffPIDAlgorithm();
 
 };
 
