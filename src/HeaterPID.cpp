@@ -69,12 +69,14 @@ void HeaterPID::update() {
   if (!this->checkSanity()) {
     DEBUG.println("HeaterPID::update: failed sanity check. Disabling heater!");
     this->disableHeater();
+    this->turnOffPIDAlgorithm();
     return;
   }
 
   if (this->turnedOff) {
     DEBUG.println("HeaterPID::update: turnedOff is true! Disabling heater");
     this->disableHeater();
+    this->turnOffPIDAlgorithm();
     return;
   }
 
@@ -213,8 +215,12 @@ boolean HeaterPID::checkSanity() {
     return false;
   }
   if (desiredTemperature < 0) {
-    DEBUG.println("HeaterPID: desired temperatur < 0!");
+    DEBUG.println("HeaterPID: desired temperature < 0!");
     return false;
+  }
+  if (currentTemperature - 10 > desiredTemperature && pidOutput > 0) {
+    // This can happen e.g. if kI is very big and contributes lots of overshoot.
+    DEBUG.println("HeaterPID: Overshooting temperature >= 10, but pidOutput > 0. Disabling!");
   }
   return true;
 }
