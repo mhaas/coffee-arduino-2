@@ -187,7 +187,7 @@ boolean HeaterPID::checkSanity() {
     // See Table 2 here: http://antriebstechnik.fh-stralsund.de/1024x768/Dokumentenframe/Kompendium/TAB/TAB.htm
     // For the limits
     // This table is not in the current TAB, it seems, but should still be relevant
-    DEBUG.println("HeaterPID: HEATER_WINDOW_SIZE too slow. Switching this often puts noise on the power grid.");
+    DEBUG.println("HeaterPID: HEATER_WINDOW_SIZE too small. Switching this often puts noise on the power grid.");
     return false;
   }
   double currentTemperature = *settings->getCurrentTemperature();
