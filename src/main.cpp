@@ -13,6 +13,7 @@
 #include "WifiWrapper.h"
 #include "HeaterPID.h"
 #include "MQTTPublisher.h"
+#include "MQTTLogger.h"
 #include "secret.h"
 
 // The loop is not allowed to take more than 2s. That's a lot already, given
@@ -25,15 +26,19 @@
 
 SettingsStorage settings = SettingsStorage();
 
+MQTTPublisher publisher = MQTTPublisher(&settings);
+
+MQTTLogger logger = MQTTLogger(&publisher);
+
 WebServer httpd = WebServer(&settings);
 
 TempSensor tempSensor = TempSensor(&settings);
 
 WifiWrapper wifi = WifiWrapper();
 
-HeaterPID pid = HeaterPID(&settings);
+HeaterPID pid = HeaterPID(&settings, &logger);
 
-MQTTPublisher publisher = MQTTPublisher(&settings);
+
 
 Ticker loopWatchDog;
 

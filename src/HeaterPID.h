@@ -9,11 +9,12 @@
 #include <functional>
 // To get INVALID_READING
 #include "TempSensor.h"
+#include "MQTTLogger.h"
 
 
 class HeaterPID {
   public:
-    HeaterPID(SettingsStorage* settings);
+    HeaterPID(SettingsStorage* settings, MQTTLogger* logger);
     void begin(const int _relayPin);
     void update();
     void end();
@@ -26,6 +27,7 @@ class HeaterPID {
     PID* pid;
     PID_ATune* aTune;
     SettingsStorage* settings;
+    MQTTLogger* logger;
     bool autoTuneRequested;
     bool turnedOff;
 

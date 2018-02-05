@@ -1,8 +1,9 @@
 #include "HeaterPID.h"
 
 
-HeaterPID::HeaterPID(SettingsStorage *_settings) {
+HeaterPID::HeaterPID(SettingsStorage *_settings, MQTTLogger *_logger) {
   settings = _settings;
+  logger = _logger;
   autoTuneRequested = false;
   turnedOff = true;
 }
@@ -67,14 +68,14 @@ void HeaterPID::begin(const int _relayPin) {
 void HeaterPID::update() {
 
   if (!this->checkSanity()) {
-    DEBUG.println("HeaterPID::update: failed sanity check. Disabling heater!");
+    logger->println("HeaterPID::update: failed sanity check. Disabling heater!");
     this->disableHeater();
     this->turnOffPIDAlgorithm();
     return;
   }
 
   if (this->turnedOff) {
-    DEBUG.println("HeaterPID::update: turnedOff is true! Disabling heater");
+    logger->println("HeaterPID::update: turnedOff is true! Disabling heater");
     this->disableHeater();
     this->turnOffPIDAlgorithm();
     return;
@@ -87,13 +88,13 @@ void HeaterPID::update() {
       double kp = aTune->GetKp();
       double ki = aTune->GetKi();
       double kd = aTune->GetKd();
-      DEBUG.println("Autotune done.");
-      DEBUG.print("kp: ");
-      DEBUG.println(kp);
-      DEBUG.print("ki: ");
-      DEBUG.println(ki);
-      DEBUG.print("kd: ");
-      DEBUG.println(kd);
+      logger->println("Autotune done.");
+      logger->print("kp: ");
+      logger->println(kp);
+      logger->print("ki: ");
+      logger->println(ki);
+      logger->print("kd: ");
+      logger->println(kd);
       pid->SetTunings(kp, ki, kd);
       settings->setKp(kp);
       settings->setKi(ki);
@@ -122,9 +123,9 @@ void HeaterPID::update() {
     // But we can compute it more often and then adjust the heating duration
     // as long as it does not cause additional switches
     pid->Compute();
-    DEBUG.print("Starting new window.");
-    DEBUG.print("PID says: ");
-    DEBUG.println(pidOutput);
+    logger->print("Starting new window.");
+    logger->print("PID says: ");
+    logger->println(pidOutput);
     // We always switch after a number of full periods. If we do not respect
     // the period, the SSR may turn off after an uneven number of half-periods,
     // which can lead to noise in the power grid.
@@ -136,10 +137,10 @@ void HeaterPID::update() {
     settings->setPidOutput(roundedPidOutput);
     // TODO: for this logic to work, the function must be called every millisecond
     // If we know an offset, we should subtract that here
-    DEBUG.print("PID output rounded to grid frequency:");
-    DEBUG.println(roundedPidOutput);
-    DEBUG.print("Desired Temp:");
-    DEBUG.println(*(settings->getDesiredTemperature()));
+    logger->print("PID output rounded to grid frequency:");
+    logger->println(roundedPidOutput);
+    logger->print("Desired Temp:");
+    logger->println(*(settings->getDesiredTemperature()));
   }
 
   // Now decide if we are in the duty cycle of our period, i.e. if we want
@@ -160,7 +161,7 @@ void HeaterPID::disableHeater() {
 }
 
 void HeaterPID::triggerAutoTune() {
-  DEBUG.println("triggerAutoTune!");
+  logger->println("triggerAutoTune!");
   autoTuneRequested = true;
 
   aTune = new PID_ATune(settings->getCurrentTemperature(),
@@ -189,38 +190,38 @@ boolean HeaterPID::checkSanity() {
     // See Table 2 here: http://antriebstechnik.fh-stralsund.de/1024x768/Dokumentenframe/Kompendium/TAB/TAB.htm
     // For the limits
     // This table is not in the current TAB, it seems, but should still be relevant
-    DEBUG.println("HeaterPID: HEATER_WINDOW_SIZE too small. Switching this often puts noise on the power grid.");
+    logger->println("HeaterPID: HEATER_WINDOW_SIZE too small. Switching this often puts noise on the power grid.");
     return false;
   }
   double currentTemperature = *settings->getCurrentTemperature();
   if (isnan(currentTemperature)) {
-    DEBUG.println("HeaterPID:checkSanity: observed temperature is NaN!");
+    logger->println("HeaterPID:checkSanity: observed temperature is NaN!");
     return false;
   }
   if (currentTemperature == TempSensor::INVALID_READING) {
-    DEBUG.println("HeaterPID: observed temperature is INVALID_READING!");
+    logger->println("HeaterPID: observed temperature is INVALID_READING!");
     return false;
   }
   if (currentTemperature > MAX_TEMPERATURE_ALLOWED) {
-    DEBUG.println("HeaterPID: observed temperature higher than MAX_TEMPERATURE_ALLOWED");
+    logger->println("HeaterPID: observed temperature higher than MAX_TEMPERATURE_ALLOWED");
     return false;
   }
   double desiredTemperature = *settings->getDesiredTemperature();
   if (isnan(desiredTemperature)) {
-    DEBUG.println("HeaterPID: desired temperature is NaN!");
+    logger->println("HeaterPID: desired temperature is NaN!");
     return false;
   }
   if (desiredTemperature > MAX_TEMPERATURE_ALLOWED) {
-    DEBUG.println("HeaterPID: desired temperature higher than MAX_TEMPERATURE_ALLOWED");
+    logger->println("HeaterPID: desired temperature higher than MAX_TEMPERATURE_ALLOWED");
     return false;
   }
   if (desiredTemperature < 0) {
-    DEBUG.println("HeaterPID: desired temperature < 0!");
+    logger->println("HeaterPID: desired temperature < 0!");
     return false;
   }
   if (currentTemperature - 10 > desiredTemperature && pidOutput > 0) {
     // This can happen e.g. if kI is very big and contributes lots of overshoot.
-    DEBUG.println("HeaterPID: Overshooting temperature >= 10, but pidOutput > 0. Disabling!");
+    logger->println("HeaterPID: Overshooting temperature >= 10, but pidOutput > 0. Disabling!");
   }
   return true;
 }
@@ -228,13 +229,13 @@ boolean HeaterPID::checkSanity() {
 void HeaterPID::turnOffPIDAlgorithm() {
   // Disables the PID algorithm and sets the pidOutput to zero.
   // Does not prevent update() from running.
-  DEBUG.println("HeaterPID::turnOffPIDAlgorithm called!");
+  logger->println("HeaterPID::turnOffPIDAlgorithm called!");
   pid->SetMode(MANUAL);
   pidOutput = 0;
 }
 
 void HeaterPID::end() {
-  DEBUG.println("HeaterPID::end called!");
+  logger->println("HeaterPID::end called!");
   turnedOff = true;
   this->update();
 }
