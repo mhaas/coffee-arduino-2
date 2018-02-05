@@ -1,6 +1,9 @@
 #include "TempSensor.h"
 
-TempSensor::TempSensor(SettingsStorage *_settings) { settings = _settings; }
+TempSensor::TempSensor(SettingsStorage *_settings, MQTTLogger *_logger) {
+  settings = _settings;
+  logger = _logger;
+}
 
 void TempSensor::begin(const byte _spiCsPin) {
   sensor = new Adafruit_MAX31865(_spiCsPin);
@@ -19,35 +22,35 @@ void TempSensor::update() {
     lastRead = now;
 
     double rtd = sensor->readRTD();
-    DEBUG.print("RTD: ");
-    DEBUG.println(rtd);
+    String rtdMessage = String("RTD: ") + String(rtd);
+    logger->println(rtdMessage);
 
     float temperature = sensor->temperature(R_AT_ZERO_DEGREES, R_REFERENCE);
 
-    DEBUG.print("temperature: ");
-    DEBUG.println(temperature);
-
+    String temperatureMessage = String("Temperature: ") + String(temperature);
+    logger->println(temperatureMessage);
     // This is essentially a low-pass filter that can be helpful
     // for the D part in the PID.
     temperature = roundf(temperature * 100 ) / 100;
 
-    DEBUG.println("rounded temperature: ");
-    DEBUG.println(temperature);
+    String roundedMessage = String("Rounded temperature: ") + String(temperature);
+    logger->println(roundedMessage);
 
+    // TODO: what does roundf() return on NaN?
     if (isnan(rtd) || isnan(temperature)) {
       temperature = INVALID_READING;
-      DEBUG.println("TempSensor: rtd or temperature is NaN. Invalid reading detected!");
+      logger->println("TempSensor: rtd or temperature is NaN. Invalid reading detected!");
     }
     if (temperature < -50 || temperature > 200) {
       // Indicate that this is a bogus reading.
       temperature = INVALID_READING;
-      DEBUG.println("TempSensor: Invalid reading detected!");
+      logger->println("TempSensor: Invalid reading detected!");
     }
     uint8_t fault = sensor->readFault();
     if (fault != 0) {
       temperature = INVALID_READING;
-      DEBUG.print("TempSensor: fault detected!");
-      DEBUG.println(fault);
+      String faultMessage = String("TempSensor: fault detected!") + String(fault);
+      logger->println(faultMessage);
       // TODO: does the Adafruit driver clear this bit?
       // I'd rather disable everything forever.
       // TODO: the Adafruit driver just reads the fault register without initiating

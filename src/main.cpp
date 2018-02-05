@@ -32,7 +32,7 @@ MQTTLogger logger = MQTTLogger(&publisher);
 
 WebServer httpd = WebServer(&settings);
 
-TempSensor tempSensor = TempSensor(&settings);
+TempSensor tempSensor = TempSensor(&settings, &logger);
 
 WifiWrapper wifi = WifiWrapper();
 

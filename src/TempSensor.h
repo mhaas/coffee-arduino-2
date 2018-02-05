@@ -2,13 +2,17 @@
 
 #define TEMP_SENSOR_H
 
-#include "SettingsStorage.h"
+
 #include <Adafruit_MAX31865.h>
+
+
+#include "SettingsStorage.h"
+#include "MQTTLogger.h"
 
 class TempSensor {
 
 public:
-  TempSensor(SettingsStorage *_settings);
+  TempSensor(SettingsStorage *_settings, MQTTLogger * _logger);
   void begin(const byte _spiCsPin);
   void update();
 
@@ -16,6 +20,7 @@ public:
 
 private:
   SettingsStorage *settings;
+  MQTTLogger *logger;
   int lastRead;
   Adafruit_MAX31865 *sensor;
 };
