@@ -64,10 +64,10 @@ void setup() {
   tempSensor.begin(TEMP_SENSOR_CS_PIN);
 
   ArduinoOTA.onStart([]() {
-    DEBUG.println("OTA started!");
-    DEBUG.println("Turning off HeaterPID");
+    logger.println("OTA started!");
+    logger.println("Turning off HeaterPID");
     pid.end();
-    DEBUG.println("Disabling main loop watchdog!");
+    logger.println("Disabling main loop watchdog!");
     loopWatchDog.detach();
   });
   ArduinoOTA.begin();
