@@ -50,11 +50,21 @@ void MQTTPublisher::update() {
 }
 
 void MQTTPublisher::publish() {
-  String topic = String("/") + String(NODE_NAME) + String("/pid");
+  String topic = String("/pid");
   String json;
   this->_settings->toJSON(json);
+  this->publishStringToSubTopic(topic, json);
+}
 
-  boolean result = _mqttClient.publish(topic.c_str(), json.c_str());
+
+void MQTTPublisher::log(String& logMessage) {
+  String topic = String("/log");
+  this->publishStringToSubTopic(topic, logMessage);
+}
+
+void MQTTPublisher::publishStringToSubTopic(String& subTopic, String& message) {
+  String topic = String("/") + String(NODE_NAME) + subTopic;
+  boolean result = _mqttClient.publish(topic.c_str(), message.c_str());
   if (! result) {
     DEBUG.println("Failed to publish to MQTT!");
   }

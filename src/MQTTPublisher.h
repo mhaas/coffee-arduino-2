@@ -26,6 +26,7 @@ public:
   MQTTPublisher(SettingsStorage *_settings);
   void begin(const char* mqttServer, int port);
   void update();
+  void log(String& logMessage);
 
 private:
   SettingsStorage *_settings;
@@ -36,6 +37,7 @@ private:
   boolean reconnect();
   boolean reconnectIfNecessary();
   void publish();
+  void publishStringToSubTopic(String& subTopic, String& message);
 };
 
 #endif
