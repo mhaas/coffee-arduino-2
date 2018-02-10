@@ -17,7 +17,7 @@
 #include "secret.h"
 
 // The loop is not allowed to take more than 2s. That's a lot already, given
-// that the pid cycle is only 1s.
+// that the pid cycle is only 600ms.
 #define MAIN_LOOP_WATCHDOG_TIMEOUT 2000
 
 /**
@@ -38,8 +38,6 @@ WifiWrapper wifi = WifiWrapper();
 
 HeaterPID pid = HeaterPID(&settings, &logger);
 
-
-
 Ticker loopWatchDog;
 
 void restart() {
@@ -50,8 +48,8 @@ void restart() {
 // the setup function runs once when you press reset or power the board
 void setup() {
   DEBUG.begin(DEBUG_BEGIN_ARG);
-  // Initialize and reset pins
   settings.begin();
+  // Initialize and reset pins
   pid.begin(HEATER_RELAY_PIN);
   // Connect URI-based triggers
   // While global settings are handled via the SettingsStorage registry, simple void functions are

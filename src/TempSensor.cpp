@@ -51,8 +51,9 @@ void TempSensor::update() {
       temperature = INVALID_READING;
       String faultMessage = String("TempSensor: fault detected!") + String(fault);
       logger->println(faultMessage);
-      // TODO: does the Adafruit driver clear this bit?
-      // I'd rather disable everything forever.
+      // Even if the adafruit driver clears the fault bit: the HeaterPID
+      // will current never re-enable after seeing INVALID_READING, and that's
+      // conservative.
       // TODO: the Adafruit driver just reads the fault register without initiating
       // the fault detection cycle. This means the example on the Adafruit site is
       // not quite correct: some conditions checked there can only be
