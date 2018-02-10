@@ -71,6 +71,19 @@ void SettingsStorage::setPidOutput(double _pidOutput) {
 void SettingsStorage::setPidInternalOutputSum(double _pidInternalOutputSum) {
   pidInternalOutputSum = _pidInternalOutputSum;
 }
+
+void SettingsStorage::setPidInternalPTerm(double _pidInternalPTerm) {
+  pidInternalPTerm = _pidInternalPTerm;
+}
+
+void SettingsStorage::setPidInternalITerm(double _pidInternalITerm) {
+  pidInternalITerm = _pidInternalITerm;
+}
+
+void SettingsStorage::setPidInternalDTerm(double _pidInternalDTerm) {
+  pidInternalDTerm = _pidInternalDTerm;
+}
+
 void SettingsStorage::setTempOffset(double tempOffset) {
   store(tempOffset, &this->storage.tempOffset);
 }
@@ -104,7 +117,7 @@ double SettingsStorage::getKd() {
 }
 
 void SettingsStorage::toJSON(String & dest) {
-  const int BUFFER_SIZE = JSON_OBJECT_SIZE(10);
+  const int BUFFER_SIZE = JSON_OBJECT_SIZE(13);
   StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
 
   JsonObject& object = jsonBuffer.createObject();
@@ -119,6 +132,10 @@ void SettingsStorage::toJSON(String & dest) {
   object["free_heap"] = ESP.getFreeHeap();
   object["uptime_milliseconds"] = millis();
   object["pid_internal_output_sum"] = pidInternalOutputSum;
+  object["pid_internal_p_term"] = pidInternalPTerm;
+  object["pid_internal_i_term"] = pidInternalITerm;
+  object["pid_internal_d_term"] = pidInternalDTerm;
+
 
 
   // TODO: add possibility to indicate errors, either via WebServer

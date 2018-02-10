@@ -20,6 +20,9 @@ class SettingsStorage {
     void setCurrentTemperature(double currentTemperature);
     void setPidOutput(double _pidOutput);
     void setPidInternalOutputSum(double _pidInternalOutputSum);
+    void setPidInternalPTerm(double _pidInternalPTerm);
+    void setPidInternalITerm(double _pidInternalITerm);
+    void setPidInternalDTerm(double _pidInternalDTerm);
 
     double* getDesiredTemperature();
     double getTempOffset();
@@ -56,6 +59,10 @@ class SettingsStorage {
     double pidOutput = 0;
 
     double pidInternalOutputSum = 0;
+
+    double pidInternalPTerm = 0;
+    double pidInternalITerm = 0;
+    double pidInternalDTerm = 0;
 
     SettingsStorage::PidSettings storage;
 
