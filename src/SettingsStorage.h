@@ -18,7 +18,9 @@ class SettingsStorage {
     void setDesiredTemperature(double _desiredTemp);
     void setTempOffset(double _tempOffset);
     void setCurrentTemperature(double currentTemperature);
-    void setPidOutput(double pidOutput);
+    void setPidOutput(double _pidOutput);
+    void setPidInternalOutputSum(double _pidInternalOutputSum);
+
     double* getDesiredTemperature();
     double getTempOffset();
     double getKp();
@@ -52,6 +54,8 @@ class SettingsStorage {
 
     double currentTemperature = 0;
     double pidOutput = 0;
+
+    double pidInternalOutputSum = 0;
 
     SettingsStorage::PidSettings storage;
 

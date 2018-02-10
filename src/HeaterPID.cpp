@@ -141,6 +141,8 @@ void HeaterPID::update() {
     logger->println(roundedPidOutput);
     logger->print("Desired Temp:");
     logger->println(*(settings->getDesiredTemperature()));
+    // Publish internal PID variable for debugging!
+    settings->setPidInternalOutputSum(pid->GetOutputSum());
   }
 
   // Now decide if we are in the duty cycle of our period, i.e. if we want

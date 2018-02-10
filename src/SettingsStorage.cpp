@@ -68,6 +68,9 @@ void SettingsStorage::setPidOutput(double _pidOutput) {
   pidOutput = _pidOutput;
 }
 
+void SettingsStorage::setPidInternalOutputSum(double _pidInternalOutputSum) {
+  pidInternalOutputSum = _pidInternalOutputSum;
+}
 void SettingsStorage::setTempOffset(double tempOffset) {
   store(tempOffset, &this->storage.tempOffset);
 }
@@ -101,7 +104,7 @@ double SettingsStorage::getKd() {
 }
 
 void SettingsStorage::toJSON(String & dest) {
-  const int BUFFER_SIZE = JSON_OBJECT_SIZE(9);
+  const int BUFFER_SIZE = JSON_OBJECT_SIZE(10);
   StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
 
   JsonObject& object = jsonBuffer.createObject();
@@ -115,6 +118,8 @@ void SettingsStorage::toJSON(String & dest) {
   object["pid_output"] = this->getPidOutput();
   object["free_heap"] = ESP.getFreeHeap();
   object["uptime_milliseconds"] = millis();
+  object["pid_internal_output_sum"] = pidInternalOutputSum;
+
 
   // TODO: add possibility to indicate errors, either via WebServer
   // or via MQTT
