@@ -111,6 +111,7 @@ void HeaterPID::update() {
   float currentWindowElapsed = millis() - windowStartTime;
 
   if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
+    logger->print("Starting new window.");
     // We may have gotten an update on the PID parameters, so update
     // them on every cycle
     //pid->SetTunings(settings->getKp(), settings->getKi(), settings->getKd());
@@ -123,7 +124,6 @@ void HeaterPID::update() {
     // But we can compute it more often and then adjust the heating duration
     // as long as it does not cause additional switches
     pid->Compute();
-    logger->print("Starting new window.");
     logger->print("PID says: ");
     logger->println(pidOutput);
     // We always switch after a number of full periods. If we do not respect
