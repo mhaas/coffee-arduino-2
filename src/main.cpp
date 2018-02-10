@@ -83,8 +83,8 @@ void loop() {
   rearmWatchDog();
   ArduinoOTA.handle();
   httpd.update();
-  tempSensor.update();
   wifi.update();
+  tempSensor.update();
   pid.update();
   publisher.update();
   rearmWatchDog();
