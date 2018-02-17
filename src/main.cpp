@@ -14,6 +14,7 @@
 #include "TempSensor.h"
 #include "WebServer.h"
 #include "WifiWrapper.h"
+// TODO: following does not work as intended
 #if __has_include("secret.h")
 #include "secret.h"
 #else
