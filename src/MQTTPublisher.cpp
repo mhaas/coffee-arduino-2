@@ -57,7 +57,7 @@ void MQTTPublisher::publish() {
 }
 
 void MQTTPublisher::log(String& logMessage) {
-  String topic = String("/log");
+  String topic = String("/log_string");
   DEBUG.println(logMessage);
   this->publishStringToSubTopic(topic, logMessage);
 }
