@@ -2,7 +2,7 @@
 # Template #1: General project. Test it using existing `platformio.ini`.
 #
 
-# language: python
+language: python
 python:
     - "2.7"
 
