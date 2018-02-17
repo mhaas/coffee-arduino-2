@@ -5,7 +5,9 @@
 #include <Arduino.h>
 #include <PID_v1.h>
 #include <functional>
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #include <Average.h>
+#pragma GCC diagnostic pop
 
 #include "SettingsStorage.h"
 // To get INVALID_READING
