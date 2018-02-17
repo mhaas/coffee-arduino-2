@@ -8,10 +8,6 @@
 
 // Code adapted from here: http://playground.arduino.cc/Code/EEPROMLoadAndSaveSettings
 
-// TODO: handle global variables
-// TODO: perhaps store config in PidSetting struct?
-
-
 
 void SettingsStorage::begin() {
 
@@ -34,7 +30,7 @@ void SettingsStorage::begin() {
 }
 
 void SettingsStorage::update() {
-
+  // no-op
 }
 
 void SettingsStorage::store(double value, double* target) {
