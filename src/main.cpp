@@ -42,6 +42,7 @@ Ticker loopWatchDog;
 
 void restart() {
   pid.end();
+  logger.println("Watchdog: loopWatchDog restart!");
   ESP.restart();
 }
 
