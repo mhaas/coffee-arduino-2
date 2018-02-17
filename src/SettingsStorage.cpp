@@ -99,7 +99,7 @@ double SettingsStorage::getKi() { return this->storage.ki; }
 double SettingsStorage::getKd() { return this->storage.kd; }
 
 void SettingsStorage::toJSON(String &dest) {
-  const int BUFFER_SIZE = JSON_OBJECT_SIZE(14);
+  const int BUFFER_SIZE = JSON_OBJECT_SIZE(18);
   StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
 
   JsonObject &object = jsonBuffer.createObject();
@@ -118,6 +118,11 @@ void SettingsStorage::toJSON(String &dest) {
   object["pid_internal_i_term"] = pidInternalITerm;
   object["pid_internal_d_term"] = pidInternalDTerm;
   object["internal_error"] = internalError;
+
+  object["pid_loop_min"] = pidLoopMin;
+  object["pid_loop_max"] = pidLoopMax;
+  object["pid_loop_avg"] = pidLoopAvg;
+  object["pid_loop_std_dev"] = pidLoopStdDev;
 
   // see http://blog.benoitblanchon.fr/arduino-json-v5-0/
   // for a discussion on static VS dynamic allocation on embedded platforms

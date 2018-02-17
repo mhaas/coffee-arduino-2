@@ -2,13 +2,16 @@
 
 #define HEATER_PID_H
 
-#include "SettingsStorage.h"
 #include <Arduino.h>
 #include <PID_v1.h>
 #include <functional>
+#include <Average.h>
+
+#include "SettingsStorage.h"
 // To get INVALID_READING
 #include "MQTTLogger.h"
 #include "TempSensor.h"
+
 
 class HeaterPID {
 public:
@@ -30,6 +33,13 @@ private:
     * This will be updated after a window has elapsed and a new window starts.
    */
   unsigned long windowStartTime;
+
+  /**
+   * Updated every loop.
+   */
+  unsigned long lastLoopStartTime;
+
+  Average<unsigned long> *timesBetweenLoops;
 
   double pidOutput;
   int relayPin;

@@ -4,6 +4,7 @@ HeaterPID::HeaterPID(SettingsStorage *_settings, MQTTLogger *_logger) {
   settings = _settings;
   logger = _logger;
   turnedOff = true;
+  timesBetweenLoops = new Average<unsigned long>(1000);
 }
 
 void HeaterPID::begin(const int _relayPin) {
@@ -70,6 +71,16 @@ void HeaterPID::begin(const int _relayPin) {
 
 void HeaterPID::update() {
 
+  unsigned long currentLoopStartTime = millis();
+
+  if (lastLoopStartTime == 0) {
+    lastLoopStartTime = currentLoopStartTime;
+  } else {
+    unsigned int timeSinceLastLoop = currentLoopStartTime - lastLoopStartTime;
+    lastLoopStartTime = currentLoopStartTime;
+    timesBetweenLoops->push(timeSinceLastLoop);
+  }
+
   if (!this->checkSanity()) {
     logger->println(
         "HeaterPID::update: failed sanity check. Disabling heater!");
@@ -98,6 +109,15 @@ void HeaterPID::update() {
     // We may have gotten an update on the PID parameters, so update
     // them on every cycle
     // pid->SetTunings(settings->getKp(), settings->getKi(), settings->getKd());
+
+
+    // Every time we start a new window, record statistics about time between
+    // loop invocations
+    this->settings->pidLoopMin = timesBetweenLoops->minimum();
+    this->settings->pidLoopMax = timesBetweenLoops->maximum();
+    this->settings->pidLoopAvg = timesBetweenLoops->mean();
+    this->settings->pidLoopStdDev = timesBetweenLoops->stddev();
+    timesBetweenLoops->clear();
 
     // time to shift the Relay Window
     windowStartTime = millis();

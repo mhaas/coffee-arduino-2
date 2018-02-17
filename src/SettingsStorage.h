@@ -38,6 +38,12 @@ public:
   double getPidOutput();
   void toJSON(String &dest);
 
+  unsigned long pidLoopMin = 0;
+  unsigned long pidLoopMax = 0;
+  unsigned long pidLoopAvg = 0;
+  unsigned long pidLoopStdDev = 0;
+
+
   struct PidSettings {
     double desiredTemperature;
     double tempOffset;
@@ -69,6 +75,7 @@ private:
   double pidInternalDTerm = 0;
 
   boolean internalError = false;
+
 
   SettingsStorage::PidSettings storage;
 
