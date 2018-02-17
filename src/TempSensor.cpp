@@ -22,19 +22,12 @@ void TempSensor::update() {
     lastRead = now;
 
     double rtd = sensor->readRTD();
-    String rtdMessage = String("RTD: ") + String(rtd);
-    logger->println(rtdMessage);
 
     float temperature = sensor->temperature(R_AT_ZERO_DEGREES, R_REFERENCE);
 
-    String temperatureMessage = String("Temperature: ") + String(temperature);
-    logger->println(temperatureMessage);
     // This is essentially a low-pass filter that can be helpful
     // for the D part in the PID.
     temperature = roundf(temperature * 100 ) / 100;
-
-    String roundedMessage = String("Rounded temperature: ") + String(temperature);
-    logger->println(roundedMessage);
 
     // TODO: what does roundf() return on NaN?
     if (isnan(rtd) || isnan(temperature)) {
