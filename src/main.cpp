@@ -14,7 +14,12 @@
 #include "TempSensor.h"
 #include "WebServer.h"
 #include "WifiWrapper.h"
-#include "secret.h"
+#if __has_include("secret.h")
+  #include "secret.h"
+#else
+  const char *SSID = "SSID";
+  const char *PASSWORD = "AWESOMEPASSWORD";
+#endif
 
 // The loop is not allowed to take more than 2s. That's a lot already, given
 // that the pid cycle is only 600ms.
