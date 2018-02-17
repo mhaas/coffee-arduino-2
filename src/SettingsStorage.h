@@ -3,6 +3,10 @@
 
 #include "Arduino.h"
 
+#include <ArduinoJson.h>
+#include <EEPROM.h>
+
+
 const size_t CONFIG_VERSION_LENGTH = 4;
 
 class SettingsStorage {

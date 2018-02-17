@@ -1,6 +1,4 @@
 #include "SettingsStorage.h"
-#include <ArduinoJson.h>
-#include <EEPROM.h>
 
 // The config version is checked to see if a (current) configuration
 // is available.
