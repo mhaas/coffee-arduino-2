@@ -15,10 +15,10 @@
 #include "WebServer.h"
 #include "WifiWrapper.h"
 #if __has_include("secret.h")
-  #include "secret.h"
+#include "secret.h"
 #else
-  const char *SSID = "SSID";
-  const char *PASSWORD = "AWESOMEPASSWORD";
+const char *SSID = "SSID";
+const char *PASSWORD = "AWESOMEPASSWORD";
 #endif
 
 // The loop is not allowed to take more than 2s. That's a lot already, given

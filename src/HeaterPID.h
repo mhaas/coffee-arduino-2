@@ -14,7 +14,6 @@
 #include "MQTTLogger.h"
 #include "TempSensor.h"
 
-
 class HeaterPID {
 public:
   HeaterPID(SettingsStorage *settings, MQTTLogger *logger);

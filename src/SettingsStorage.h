@@ -6,7 +6,6 @@
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 
-
 const size_t CONFIG_VERSION_LENGTH = 4;
 
 class SettingsStorage {
@@ -43,7 +42,6 @@ public:
   unsigned long pidLoopAvg = 0;
   unsigned long pidLoopStdDev = 0;
 
-
   struct PidSettings {
     double desiredTemperature;
     double tempOffset;
@@ -75,7 +73,6 @@ private:
   double pidInternalDTerm = 0;
 
   boolean internalError = false;
-
 
   SettingsStorage::PidSettings storage;
 

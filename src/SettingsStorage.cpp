@@ -76,9 +76,7 @@ void SettingsStorage::setTempOffset(double tempOffset) {
   store(tempOffset, &this->storage.tempOffset);
 }
 
-void SettingsStorage::flagInternalError() {
-  internalError = true;
-}
+void SettingsStorage::flagInternalError() { internalError = true; }
 
 double *SettingsStorage::getDesiredTemperature() {
   return &this->storage.desiredTemperature;

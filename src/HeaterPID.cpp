@@ -97,7 +97,6 @@ void HeaterPID::update() {
     return;
   }
 
-
   // Duration of one AC period. 20ms for 50Hz
   const double PERIOD_DURATION = 20.0;
 
@@ -109,7 +108,6 @@ void HeaterPID::update() {
     // We may have gotten an update on the PID parameters, so update
     // them on every cycle
     // pid->SetTunings(settings->getKp(), settings->getKi(), settings->getKd());
-
 
     // Every time we start a new window, record statistics about time between
     // loop invocations
@@ -164,7 +162,6 @@ void HeaterPID::update() {
 void HeaterPID::enableHeater() { digitalWrite(relayPin, HEATER_RELAY_ON); }
 
 void HeaterPID::disableHeater() { digitalWrite(relayPin, HEATER_RELAY_OFF); }
-
 
 /**
 * Performs some checks if observed and desired values look sane. Returns false
