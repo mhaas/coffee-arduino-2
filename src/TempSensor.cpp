@@ -27,12 +27,13 @@ void TempSensor::update() {
 
     // This is essentially a low-pass filter that can be helpful
     // for the D part in the PID.
-    temperature = roundf(temperature * 100 ) / 100;
+    temperature = roundf(temperature * 100) / 100;
 
     // TODO: what does roundf() return on NaN?
     if (isnan(rtd) || isnan(temperature)) {
       temperature = INVALID_READING;
-      logger->println("TempSensor: rtd or temperature is NaN. Invalid reading detected!");
+      logger->println(
+          "TempSensor: rtd or temperature is NaN. Invalid reading detected!");
     }
     if (temperature < -50 || temperature > 200) {
       // Indicate that this is a bogus reading.
@@ -42,13 +43,16 @@ void TempSensor::update() {
     uint8_t fault = sensor->readFault();
     if (fault != 0) {
       temperature = INVALID_READING;
-      String faultMessage = String("TempSensor: fault detected!") + String(fault);
+      String faultMessage =
+          String("TempSensor: fault detected!") + String(fault);
       logger->println(faultMessage);
       // Even if the adafruit driver clears the fault bit: the HeaterPID
       // will current never re-enable after seeing INVALID_READING, and that's
       // conservative.
-      // TODO: the Adafruit driver just reads the fault register without initiating
-      // the fault detection cycle. This means the example on the Adafruit site is
+      // TODO: the Adafruit driver just reads the fault register without
+      // initiating
+      // the fault detection cycle. This means the example on the Adafruit site
+      // is
       // not quite correct: some conditions checked there can only be
       // detected when a fault detection cycle is initiated.
     }

@@ -2,18 +2,20 @@
 
 MQTTPublisher::MQTTPublisher(SettingsStorage *settings) {
   this->_settings = settings;
- _mqttClient = PubSubClient(_espClient);
+  _mqttClient = PubSubClient(_espClient);
 }
 
-void MQTTPublisher::begin(const char* mqttServer, int mqttPort) {
+void MQTTPublisher::begin(const char *mqttServer, int mqttPort) {
   _espClient.setTimeout(MQTT_TIMEOUT);
   _mqttClient.setServer(mqttServer, mqttPort);
-  // ensure that we publish/connect as soon as possible, and not after the uptime
+  // ensure that we publish/connect as soon as possible, and not after the
+  // uptime
   // exceeds MQTT_PUBLISH_CYCLE/MQTT_RECONNECT_CYCLE
   _lastUpdateTime = MQTT_PUBLISH_CYCLE;
   _lastReconnectAttempt = MQTT_RECONNECT_CYCLE;
   if (!this->reconnectIfNecessary()) {
-    DEBUG.println("MQTTPublisher: Initial connection attempt failed. Will keep trying.");
+    DEBUG.println(
+        "MQTTPublisher: Initial connection attempt failed. Will keep trying.");
   }
 }
 
@@ -24,7 +26,7 @@ boolean MQTTPublisher::reconnectIfNecessary() {
     if (now - this->_lastReconnectAttempt > MQTT_RECONNECT_CYCLE) {
       this->_lastReconnectAttempt = now;
       this->reconnect();
-      }
+    }
   }
   return this->_mqttClient.connected();
 }
@@ -38,7 +40,7 @@ boolean MQTTPublisher::reconnect() {
 
 void MQTTPublisher::update() {
   _mqttClient.loop();
-  if (millis() - _lastUpdateTime <  MQTT_PUBLISH_CYCLE) {
+  if (millis() - _lastUpdateTime < MQTT_PUBLISH_CYCLE) {
     return;
   }
   // reconnectIfNecessary
@@ -56,20 +58,20 @@ void MQTTPublisher::publish() {
   this->publishStringToSubTopic(topic, json);
 }
 
-void MQTTPublisher::log(String& logMessage) {
+void MQTTPublisher::log(String &logMessage) {
   String topic = String("/log_string");
   DEBUG.println(logMessage);
   this->publishStringToSubTopic(topic, logMessage);
 }
 
-void MQTTPublisher::publishStringToSubTopic(String& subTopic, String& message) {
+void MQTTPublisher::publishStringToSubTopic(String &subTopic, String &message) {
   if (!_mqttClient.connected()) {
     DEBUG.println("Failed to publish to MQTT: client not connected!");
     return;
   }
   String topic = String("/") + String(NODE_NAME) + subTopic;
   boolean result = _mqttClient.publish(topic.c_str(), message.c_str());
-  if (! result) {
+  if (!result) {
     DEBUG.println("Failed to publish to MQTT!");
   }
 }

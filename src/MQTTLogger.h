@@ -9,20 +9,19 @@
 
 class MQTTLogger {
 
-  public:
-    MQTTLogger(MQTTPublisher* publisher);
+public:
+  MQTTLogger(MQTTPublisher *publisher);
 
-    void print(String& message);
-    void print(const char* message);
-    void println(String& message);
-    void println(const char* message);
-    void println(float message);
-    void println(double message);
-    void println(int message);
+  void print(String &message);
+  void print(const char *message);
+  void println(String &message);
+  void println(const char *message);
+  void println(float message);
+  void println(double message);
+  void println(int message);
 
-  private:
-    MQTTPublisher* _publisher;
+private:
+  MQTTPublisher *_publisher;
 };
-
 
 #endif

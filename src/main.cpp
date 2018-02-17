@@ -8,12 +8,12 @@
 #include <ArduinoOTA.h>
 #include <Ticker.h>
 
-#include "WebServer.h"
-#include "TempSensor.h"
-#include "WifiWrapper.h"
 #include "HeaterPID.h"
-#include "MQTTPublisher.h"
 #include "MQTTLogger.h"
+#include "MQTTPublisher.h"
+#include "TempSensor.h"
+#include "WebServer.h"
+#include "WifiWrapper.h"
 #include "secret.h"
 
 // The loop is not allowed to take more than 2s. That's a lot already, given
@@ -53,7 +53,8 @@ void setup() {
   // Initialize and reset pins
   pid.begin(HEATER_RELAY_PIN);
   // Connect URI-based triggers
-  // While global settings are handled via the SettingsStorage registry, simple void functions are
+  // While global settings are handled via the SettingsStorage registry, simple
+  // void functions are
   // connected to the web server via callbacks
   httpd.addTrigger("/trigger_autotune", pid.getTriggerAutoTuneCallback());
   httpd.addTrigger("/trigger_restart", restart);
@@ -72,12 +73,12 @@ void setup() {
   ArduinoOTA.begin();
 
   publisher.begin(MQTT_HOST, 1883);
- }
+}
 
- void rearmWatchDog() {
-   loopWatchDog.detach();
-   loopWatchDog.attach_ms(MAIN_LOOP_WATCHDOG_TIMEOUT, restart);
- }
+void rearmWatchDog() {
+  loopWatchDog.detach();
+  loopWatchDog.attach_ms(MAIN_LOOP_WATCHDOG_TIMEOUT, restart);
+}
 
 // the loop function runs over and over again forever
 void loop() {

@@ -2,17 +2,15 @@
 
 #define TEMP_SENSOR_H
 
-
 #include <Adafruit_MAX31865.h>
 
-
-#include "SettingsStorage.h"
 #include "MQTTLogger.h"
+#include "SettingsStorage.h"
 
 class TempSensor {
 
 public:
-  TempSensor(SettingsStorage *_settings, MQTTLogger * _logger);
+  TempSensor(SettingsStorage *_settings, MQTTLogger *_logger);
   void begin(const byte _spiCsPin);
   void update();
 
