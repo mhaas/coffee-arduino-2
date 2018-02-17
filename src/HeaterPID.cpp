@@ -115,7 +115,7 @@ void HeaterPID::update() {
     this->settings->pidLoopMax = timesBetweenLoops->maximum();
     this->settings->pidLoopAvg = timesBetweenLoops->mean();
     this->settings->pidLoopStdDev = timesBetweenLoops->stddev();
-    timesBetweenLoops->clear();
+    //timesBetweenLoops->clear();
 
     // time to shift the Relay Window
     windowStartTime = millis();

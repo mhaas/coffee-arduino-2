@@ -39,8 +39,8 @@ public:
 
   unsigned long pidLoopMin = 0;
   unsigned long pidLoopMax = 0;
-  unsigned long pidLoopAvg = 0;
-  unsigned long pidLoopStdDev = 0;
+  float pidLoopAvg = 0;
+  float pidLoopStdDev = 0;
 
   struct PidSettings {
     double desiredTemperature;
