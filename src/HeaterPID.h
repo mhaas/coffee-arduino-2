@@ -4,7 +4,6 @@
 
 #include "SettingsStorage.h"
 #include <Arduino.h>
-#include <PID_AutoTune_v0.h>
 #include <PID_v1.h>
 #include <functional>
 // To get INVALID_READING
@@ -17,17 +16,13 @@ public:
   void begin(const int _relayPin);
   void update();
   void end();
-  void triggerAutoTune();
-  std::function<void(void)> getTriggerAutoTuneCallback();
 
   static const int MAX_TEMPERATURE_ALLOWED = 130;
 
 private:
   PID *pid;
-  PID_ATune *aTune;
   SettingsStorage *settings;
   MQTTLogger *logger;
-  bool autoTuneRequested;
   bool turnedOff;
 
   /**

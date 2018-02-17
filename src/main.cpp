@@ -56,7 +56,6 @@ void setup() {
   // While global settings are handled via the SettingsStorage registry, simple
   // void functions are
   // connected to the web server via callbacks
-  httpd.addTrigger("/trigger_autotune", pid.getTriggerAutoTuneCallback());
   httpd.addTrigger("/trigger_restart", restart);
 
   httpd.begin();

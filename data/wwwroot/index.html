@@ -42,8 +42,6 @@
         let desiredTempSubmitButton =  document.getElementById('form_desired_temp');
         desiredTempSubmitButton.addEventListener('submit', submitDesiredTemperatureForm);
 
-        let autoTuneButton = document.getElementById('button_autotune');
-        autoTuneButton.addEventListener('click', handleAutoTune, false);
 
         let restartButton = document.getElementById('button_restart');
         restartButton.addEventListener('click', handleRestart, false);
@@ -127,10 +125,6 @@
       return false;
     }
 
-    function handleAutoTune() {
-        return handleTrigger('trigger_autotune');
-    }
-
     function handleRestart() {
       return handleTrigger('trigger_restart');
     }
@@ -198,7 +192,6 @@
     <canvas id="coffee-pid-param" width="500" height="200"></canvas>
   </div>
     <br/>
-    <button type="button" id="button_autotune">AutoTune</button>
     <form id="form_pid_params">
       <div class="input-container">
         <label for="input_kp">Kp</label>

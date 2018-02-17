@@ -3,7 +3,6 @@
 HeaterPID::HeaterPID(SettingsStorage *_settings, MQTTLogger *_logger) {
   settings = _settings;
   logger = _logger;
-  autoTuneRequested = false;
   turnedOff = true;
 }
 
@@ -87,27 +86,6 @@ void HeaterPID::update() {
     return;
   }
 
-  if (autoTuneRequested) {
-    if (aTune->Runtime() != 0) {
-      // done auto-tuning
-      autoTuneRequested = false;
-      double kp = aTune->GetKp();
-      double ki = aTune->GetKi();
-      double kd = aTune->GetKd();
-      logger->println("Autotune done.");
-      logger->print("kp: ");
-      logger->println(kp);
-      logger->print("ki: ");
-      logger->println(ki);
-      logger->print("kd: ");
-      logger->println(kd);
-      pid->SetTunings(kp, ki, kd);
-      settings->setKp(kp);
-      settings->setKi(ki);
-      settings->setKd(kd);
-      free(aTune);
-    }
-  }
 
   // Duration of one AC period. 20ms for 50Hz
   const double PERIOD_DURATION = 20.0;
@@ -167,29 +145,6 @@ void HeaterPID::enableHeater() { digitalWrite(relayPin, HEATER_RELAY_ON); }
 
 void HeaterPID::disableHeater() { digitalWrite(relayPin, HEATER_RELAY_OFF); }
 
-void HeaterPID::triggerAutoTune() {
-  logger->println("triggerAutoTune!");
-  autoTuneRequested = true;
-
-  aTune = new PID_ATune(settings->getCurrentTemperature(),
-                        settings->getDesiredTemperature());
-  // 0: PI, 1: PID
-  aTune->SetControlType(0);
-  // Set the outputstep to 5: this is how many degrees celsius the autotuner
-  // will
-  // oscillate. Typically, we will want to vary the temperature by only a few
-  // degrees
-  // when brewing espresso, so the default of 30 is too much - and possibly
-  // dangerous. Luckily, if the autotuner applies an output step that's too
-  // high,
-  // that should be caught by the sanityCheck() below.
-  aTune->SetOutputStep(5);
-  // Changes in the order of less than 0.25 are ignored as noise
-  // This is half of the default.
-  aTune->SetNoiseBand(0.25);
-  // This is the default.
-  aTune->SetLookbackSec(10);
-}
 
 /**
 * Performs some checks if observed and desired values look sane. Returns false
@@ -255,8 +210,4 @@ void HeaterPID::end() {
   logger->println("HeaterPID::end called!");
   turnedOff = true;
   this->update();
-}
-
-std::function<void(void)> HeaterPID::getTriggerAutoTuneCallback() {
-  return std::bind(&HeaterPID::triggerAutoTune, this);
 }
