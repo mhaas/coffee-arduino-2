@@ -78,6 +78,10 @@ void SettingsStorage::setTempOffset(double tempOffset) {
   store(tempOffset, &this->storage.tempOffset);
 }
 
+void SettingsStorage::flagInternalError() {
+  internalError = true;
+}
+
 double *SettingsStorage::getDesiredTemperature() {
   return &this->storage.desiredTemperature;
 }
@@ -97,7 +101,7 @@ double SettingsStorage::getKi() { return this->storage.ki; }
 double SettingsStorage::getKd() { return this->storage.kd; }
 
 void SettingsStorage::toJSON(String &dest) {
-  const int BUFFER_SIZE = JSON_OBJECT_SIZE(13);
+  const int BUFFER_SIZE = JSON_OBJECT_SIZE(14);
   StaticJsonBuffer<BUFFER_SIZE> jsonBuffer;
 
   JsonObject &object = jsonBuffer.createObject();
@@ -115,9 +119,7 @@ void SettingsStorage::toJSON(String &dest) {
   object["pid_internal_p_term"] = pidInternalPTerm;
   object["pid_internal_i_term"] = pidInternalITerm;
   object["pid_internal_d_term"] = pidInternalDTerm;
-
-  // TODO: add possibility to indicate errors, either via WebServer
-  // or via MQTT
+  object["internal_error"] = internalError;
 
   // see http://blog.benoitblanchon.fr/arduino-json-v5-0/
   // for a discussion on static VS dynamic allocation on embedded platforms

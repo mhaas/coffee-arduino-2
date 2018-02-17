@@ -23,6 +23,8 @@ public:
   void setPidInternalITerm(double _pidInternalITerm);
   void setPidInternalDTerm(double _pidInternalDTerm);
 
+  void flagInternalError();
+
   double *getDesiredTemperature();
   double getTempOffset();
   double getKp();
@@ -61,6 +63,8 @@ private:
   double pidInternalPTerm = 0;
   double pidInternalITerm = 0;
   double pidInternalDTerm = 0;
+
+  boolean internalError = false;
 
   SettingsStorage::PidSettings storage;
 

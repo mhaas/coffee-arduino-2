@@ -74,6 +74,7 @@ void HeaterPID::update() {
   if (!this->checkSanity()) {
     logger->println(
         "HeaterPID::update: failed sanity check. Disabling heater!");
+    this->settings->flagInternalError();
     this->disableHeater();
     this->turnOffPIDAlgorithm();
     return;
