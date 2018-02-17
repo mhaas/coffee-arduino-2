@@ -111,7 +111,7 @@ void HeaterPID::update() {
   float currentWindowElapsed = millis() - windowStartTime;
 
   if (currentWindowElapsed > HEATER_WINDOW_SIZE) {
-    logger->print("Starting new window.");
+    //logger->print("Starting new window.");
     // We may have gotten an update on the PID parameters, so update
     // them on every cycle
     //pid->SetTunings(settings->getKp(), settings->getKi(), settings->getKd());
@@ -124,8 +124,7 @@ void HeaterPID::update() {
     // But we can compute it more often and then adjust the heating duration
     // as long as it does not cause additional switches
     pid->Compute();
-    logger->print("PID says: ");
-    logger->println(pidOutput);
+    //logger->println(String("PID says: ") + String(pidOutput));
     // We always switch after a number of full periods. If we do not respect
     // the period, the SSR may turn off after an uneven number of half-periods,
     // which can lead to noise in the power grid.
@@ -137,10 +136,8 @@ void HeaterPID::update() {
     settings->setPidOutput(roundedPidOutput);
     // TODO: for this logic to work, the function must be called every millisecond
     // If we know an offset, we should subtract that here
-    logger->print("PID output rounded to grid frequency:");
-    logger->println(roundedPidOutput);
-    logger->print("Desired Temp:");
-    logger->println(*(settings->getDesiredTemperature()));
+    //logger->println(String("PID output rounded to grid frequency: ") + String(roundedPidOutput));
+    //logger->println(String("Desired Temp: ") + String(*(settings->getDesiredTemperature())));
     // Publish internal PID variable for debugging!
     settings->setPidInternalOutputSum(pid->GetOutputSum());
     settings->setPidInternalPTerm(pid->getLastPTerm());
@@ -227,6 +224,7 @@ boolean HeaterPID::checkSanity() {
   if (currentTemperature - 10 > desiredTemperature && pidOutput > 0) {
     // This can happen e.g. if kI is very big and contributes lots of overshoot.
     logger->println("HeaterPID: Overshooting temperature >= 10, but pidOutput > 0. Disabling!");
+    return false;
   }
   return true;
 }
