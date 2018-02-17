@@ -3,8 +3,7 @@
 #define MQTT_PUBLISHER_H
 
 #include "SettingsStorage.h"
-#include <PubSubClient.h>
-#include <WiFiClient.h>
+#include <AsyncMqttClient.h>
 
 // milliseconds
 #define MQTT_PUBLISH_CYCLE 500
@@ -29,8 +28,7 @@ public:
 
 private:
   SettingsStorage *_settings;
-  WiFiClient _espClient;
-  PubSubClient _mqttClient;
+  AsyncMqttClient _mqttClient;
   long _lastReconnectAttempt = 0;
   long _lastUpdateTime = 0;
   boolean reconnect();
