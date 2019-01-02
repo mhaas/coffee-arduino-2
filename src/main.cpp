@@ -44,6 +44,8 @@ WifiWrapper wifi = WifiWrapper();
 
 HeaterPID pid = HeaterPID(&settings, &logger);
 
+ShotDetection sd = ShotDetection(settings.getCurrentTemperature());
+
 Ticker loopWatchDog;
 
 void restart() {
