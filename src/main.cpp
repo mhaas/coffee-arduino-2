@@ -14,6 +14,7 @@
 #include "TempSensor.h"
 #include "WebServer.h"
 #include "WifiWrapper.h"
+#include <ShotDetection.h>
 // TODO: following does not work as intended
 #if __has_include("secret.h")
 #include "secret.h"
@@ -43,6 +44,8 @@ TempSensor tempSensor = TempSensor(&settings, &logger);
 WifiWrapper wifi = WifiWrapper();
 
 HeaterPID pid = HeaterPID(&settings, &logger);
+
+ShotDetection sd = ShotDetection(settings.getCurrentTemperature());
 
 Ticker loopWatchDog;
 
